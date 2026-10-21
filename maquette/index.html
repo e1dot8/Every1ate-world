@@ -1,0 +1,1416 @@
+<title>Le QG Every1.ate</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Ubuntu:wght@400;500;700&display=swap">
+<style>
+/* Layout : une pièce isométrique en pixel art au centre (comme une chambre d'hôtel Habbo), une fenêtre d'info à droite, la barre d'outils en bas. Univers assumé : une seule ambiance, nuit bleue + fenêtres claires. */
+:root {
+  --night: #0f1d2e;        /* fond autour des pièces */
+  --night-2: #172a40;      /* barres */
+  --chrome: #1e5a8c;       /* en-têtes de fenêtres */
+  --panel: #edf0f3;        /* corps des fenêtres */
+  --panel-2: #dfe4ea;      /* lignes, champs */
+  --ink: #142030;          /* texte */
+  --muted: #586777;        /* texte secondaire */
+  --coin: #ffc933;         /* action principale, récompenses */
+  --go: #2b9a4c;           /* fait, disponible */
+  --alert: #d9402f;        /* retard, bloqué */
+  --violet: #7a5ad8;       /* réunion */
+  --display: "Pixelify Sans", "Courier New", monospace;
+  --body: "Ubuntu", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+button { color: inherit; }
+body { background: var(--night); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.45; }
+button, input, select { font: inherit; }
+:focus-visible { outline: 2px solid var(--coin); outline-offset: 2px; }
+.app { min-height: 100%; display: flex; flex-direction: column; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 12px calc(132px + env(safe-area-inset-bottom, 0px)); gap: 12px; max-width: 1280px; margin: 0 auto; }
+
+/* En-tête */
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; color: #e8eef5; }
+.logo { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .02em; display: flex; align-items: center; gap: 8px; }
+.logo i { width: 14px; height: 14px; background: var(--coin); box-shadow: 4px 4px 0 #c8231b; display: inline-block; }
+.room-title { font-family: var(--display); font-size: 16px; color: #9fb6cc; }
+.demo-tag { margin-left: auto; font-size: 12px; color: #9fb6cc; border: 1px dashed #3d5876; padding: 3px 8px; border-radius: 4px; }
+.presence { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: var(--night-2); color: #dbe6f1; border: 1px solid #2b4560; border-radius: 999px; padding: 3px 10px 3px 4px; font-size: 12px; cursor: pointer; }
+.chip .dot { width: 18px; height: 18px; border-radius: 4px; display: inline-grid; place-items: center; font-family: var(--display); font-size: 11px; color: #fff; }
+.chip b { font-weight: 500; }
+
+/* Scène */
+.main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 12px; align-items: start; }
+.stage-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.stage { position: relative; width: 100%; background: radial-gradient(ellipse at 50% 40%, #1d3550, var(--night) 70%); border: 2px solid #2b4560; border-radius: 10px; overflow: hidden; touch-action: manipulation; }
+.stage canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; margin: 0 auto; cursor: pointer; }
+.overlay { position: absolute; inset: 0; pointer-events: none; }
+.tag { position: absolute; transform: translate(-50%, -50%); font-family: var(--display); font-size: 11px; color: #fff; background: rgba(15, 29, 46, .78); border-radius: 3px; padding: 1px 5px; white-space: nowrap; }
+.tag.floor { background: rgba(255, 255, 255, .85); color: var(--ink); }
+.tag.name { transform: translate(-50%, -100%); }
+.chatlog { position: absolute; left: 8px; right: 8px; top: 8px; display: flex; flex-direction: column; gap: 4px; align-items: center; pointer-events: none; }
+.bubble { max-width: min(92%, 460px); background: #fff; color: var(--ink); border: 2px solid #142030; border-radius: 8px; padding: 3px 8px 3px 4px; font-size: 12.5px; display: flex; gap: 6px; align-items: flex-start; box-shadow: 0 2px 0 rgba(0,0,0,.35); animation: rise .25s ease-out; }
+.bubble .who { flex: none; width: 16px; height: 16px; border-radius: 3px; margin-top: 1px; }
+.bubble b { font-weight: 700; }
+.bubble.sys { background: #fff7d6; }
+.bubble.old { opacity: .55; }
+@keyframes rise { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+.room-hint { color: #9fb6cc; font-size: 12.5px; }
+.objects { display: flex; flex-wrap: wrap; gap: 6px; }
+.objects button { background: var(--night-2); color: #dbe6f1; border: 1px solid #2b4560; border-radius: 6px; padding: 4px 9px; font-size: 12.5px; cursor: pointer; min-height: 32px; }
+.objects button:hover { border-color: var(--coin); }
+
+/* Fenêtres façon Habbo */
+.side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.win { background: var(--panel); border: 2px solid #0b1522; border-radius: 8px; box-shadow: 0 3px 0 rgba(0,0,0,.4); overflow: hidden; min-width: 0; }
+.win > h2 { margin: 0; background: var(--chrome); color: #fff; font-family: var(--display); font-weight: 600; font-size: 15px; padding: 5px 10px; display: flex; align-items: center; gap: 8px; }
+.win > h2 .x { margin-left: auto; background: #c8452f; border: 1px solid #6e1d12; color: #fff; width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-family: var(--display); line-height: 1; }
+.win .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+.win h3 { margin: 0; font-size: 16px; text-wrap: balance; }
+.win p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 12.5px; }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 1px 8px; border: 1px solid; }
+.pill.todo { color: #3c4a5a; border-color: #a9b5c2; background: #fff; }
+.pill.doing { color: #1d5d9b; border-color: #8db7e2; background: #eaf3fc; }
+.pill.done { color: #1d6b3a; border-color: #8fd0a4; background: #e8f7ed; }
+.pill.blocked, .pill.late { color: #a5291c; border-color: #eba59b; background: #fdecea; }
+.pill.meet { color: #4f35a8; border-color: #c2b2f0; background: #f2eefd; }
+.rows { display: flex; flex-direction: column; gap: 6px; }
+.row { display: flex; gap: 8px; align-items: center; background: #fff; color: var(--ink); border: 1px solid var(--panel-2); border-radius: 6px; padding: 7px 8px; min-width: 0; }
+.row .grow { flex: 1; min-width: 0; }
+.row .t { font-weight: 600; overflow-wrap: anywhere; }
+.row .s { font-size: 12px; color: var(--muted); }
+.mini { width: 22px; height: 22px; border-radius: 4px; flex: none; display: grid; place-items: center; color: #fff; font-family: var(--display); font-size: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn { border: 2px solid #0b1522; border-bottom-width: 3px; background: #fff; color: var(--ink); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-weight: 500; min-height: 36px; }
+.btn.main { background: var(--coin); }
+.btn.go { background: #bfe8cb; }
+.btn.warn { background: #ffd9d3; }
+.btn:active { transform: translateY(1px); border-bottom-width: 2px; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.slot { border: 2px dashed #a9b5c2; border-radius: 6px; min-height: 54px; padding: 5px; font-size: 12px; display: flex; flex-direction: column; gap: 3px; background: #fff; }
+.slot.full { border-style: solid; border-color: #8db7e2; }
+.slot.blocked { border-color: #eba59b; background: #fff4f2; }
+.slots:has(> :nth-child(4)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.bar { height: 10px; background: #fff; border: 2px solid #0b1522; border-radius: 3px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--go); }
+.bar.hot > i { background: var(--alert); }
+.bar.mid > i { background: var(--coin); }
+.mission { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+.mission .box { flex: none; width: 16px; height: 16px; border: 2px solid #0b1522; border-radius: 3px; margin-top: 2px; background: #fff; display: grid; place-items: center; font-family: var(--display); font-size: 12px; color: #fff; }
+.mission.ok .box { background: var(--go); }
+.mission.ok span { color: var(--muted); text-decoration: line-through; }
+.feed { max-height: 220px; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
+.feed .row { padding: 5px 7px; font-size: 12.5px; }
+textarea.note { width: 100%; min-height: 64px; border: 2px solid #0b1522; border-radius: 6px; padding: 6px; font: inherit; resize: vertical; }
+label.field { display: flex; flex-direction: column; gap: 4px; font-weight: 600; font-size: 13px; }
+select.inp, input.inp { border: 2px solid #0b1522; border-radius: 6px; padding: 5px 8px; min-height: 36px; background: #fff; color: var(--ink); }
+
+/* Barre du bas : chat + outils */
+.dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--night-2); border-top: 2px solid #0b1522; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); padding-block: 8px calc(8px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 8px; }
+.dock-in { max-width: 1280px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.chat { display: flex; gap: 6px; }
+.chat select { flex: none; max-width: 40%; }
+.chat input { flex: 1; min-width: 0; }
+.tools { display: flex; gap: 6px; overflow-x: auto; }
+.tool { flex: none; display: inline-flex; align-items: center; gap: 6px; background: #22405f; color: #fff; border: 2px solid #0b1522; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-family: var(--display); font-size: 14px; min-height: 40px; position: relative; }
+.tool:hover { background: #2a5078; }
+.tool svg { width: 18px; height: 18px; shape-rendering: crispEdges; }
+.tool .count { background: var(--alert); color: #fff; font-family: var(--body); font-size: 11px; font-weight: 700; border-radius: 999px; padding: 0 6px; }
+
+/* Fenêtre modale (navigateur, main, quêtes) */
+.modal { position: fixed; z-index: 30; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(560px, calc(100vw - 24px)); max-height: min(78vh, 680px); display: flex; flex-direction: column; }
+.modal .body { overflow: auto; }
+.scrim { position: fixed; inset: 0; z-index: 25; background: rgba(5, 10, 18, .55); }
+.toasts { position: fixed; z-index: 40; right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(118px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 8px; width: min(340px, calc(100vw - 24px)); pointer-events: none; }
+.toast { background: var(--panel); border: 2px solid #0b1522; border-left: 8px solid var(--coin); border-radius: 6px; padding: 8px 10px; box-shadow: 0 3px 0 rgba(0,0,0,.4); animation: rise .25s ease-out; font-size: 13px; }
+.toast b { display: block; font-family: var(--display); font-size: 14px; }
+.nav-room { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: #fff; color: var(--ink); border: 1px solid var(--panel-2); border-radius: 6px; padding: 8px; cursor: pointer; }
+.nav-room:hover { border-color: var(--chrome); }
+.nav-room .ic { width: 34px; height: 34px; border-radius: 6px; flex: none; }
+.nav-room .grow { flex: 1; min-width: 0; }
+.nav-room .s { font-size: 12px; color: var(--muted); }
+.sect { font-family: var(--display); font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+@media (max-width: 900px) {
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .demo-tag { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .bubble, .toast { animation: none; } }
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="logo"><i aria-hidden="true"></i>Le QG</div>
+    <div class="room-title" id="roomTitle">Chambre de Johan</div>
+    <div class="presence" id="presence" aria-label="Où est l'équipe"></div>
+    <div class="demo-tag">Maquette · données fictives · tu es Johan</div>
+  </header>
+
+  <main class="main">
+    <section class="stage-wrap" aria-label="Pièce">
+      <div class="stage" id="stage">
+        <canvas id="room" width="560" height="380" role="img" aria-label="Pièce du QG"></canvas>
+        <div class="overlay" id="overlay"></div>
+        <div class="chatlog" id="chatlog" aria-live="polite"></div>
+      </div>
+      <p class="room-hint" id="roomHint"></p>
+      <div class="objects" id="objects" aria-label="Dans cette pièce"></div>
+    </section>
+
+    <aside class="side">
+      <section class="win" id="info" aria-live="polite">
+        <h2>Info</h2>
+        <div class="body" id="infoBody"></div>
+      </section>
+      <section class="win">
+        <h2>À essayer (5 min)</h2>
+        <div class="body" id="missions"></div>
+      </section>
+      <section class="win">
+        <h2>Fil du QG</h2>
+        <div class="body"><div class="feed" id="feed"></div></div>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<div class="dock">
+  <div class="dock-in">
+    <form class="chat" id="chat" autocomplete="off">
+      <select class="inp" id="chatKind" aria-label="Type de message">
+        <option value="note">Note</option>
+        <option value="aujourdhui">Aujourd'hui</option>
+        <option value="bloque">Bloqué</option>
+      </select>
+      <input class="inp" id="chatText" maxlength="140" placeholder="Dire quelque chose à l'équipe…" aria-label="Message">
+      <button class="btn main" type="submit">Dire</button>
+    </form>
+    <nav class="tools" aria-label="Outils">
+      <button class="tool" type="button" data-open="nav"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="3" y="0" width="3" height="1" fill="#fff"/><rect x="1" y="1" width="2" height="1" fill="#fff"/><rect x="6" y="1" width="2" height="1" fill="#fff"/><rect x="0" y="3" width="1" height="3" fill="#fff"/><rect x="8" y="3" width="1" height="3" fill="#fff"/><rect x="1" y="7" width="2" height="1" fill="#fff"/><rect x="6" y="7" width="2" height="1" fill="#fff"/><rect x="3" y="8" width="3" height="1" fill="#fff"/><rect x="4" y="2" width="1" height="3" fill="#ffc933"/><rect x="4" y="5" width="1" height="2" fill="#d9402f"/></svg>Navigateur</button>
+      <button class="tool" type="button" data-open="hand"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="1" y="2" width="7" height="6" fill="#c98f4a"/><rect x="1" y="2" width="7" height="1" fill="#e7b46d"/><rect x="3" y="4" width="3" height="1" fill="#7a4f22"/></svg>Ma main <span class="count" id="handCount">0</span></button>
+      <button class="tool" type="button" data-open="wall"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="1" y="1" width="7" height="7" fill="#ffe36b"/><rect x="2" y="3" width="5" height="1" fill="#8a6d00"/><rect x="2" y="5" width="3" height="1" fill="#8a6d00"/></svg>Post-it <span class="count" id="postitCount">0</span></button>
+      <button class="tool" type="button" data-open="quests"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="2" y="0" width="5" height="1" fill="#ffc933"/><rect x="1" y="1" width="7" height="3" fill="#ffc933"/><rect x="3" y="4" width="3" height="2" fill="#ffc933"/><rect x="4" y="6" width="1" height="1" fill="#ffc933"/><rect x="2" y="7" width="5" height="2" fill="#c98f4a"/></svg>Quêtes</button>
+      <button class="tool" type="button" data-open="me"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="2" y="0" width="5" height="4" fill="#f2c39b"/><rect x="2" y="0" width="5" height="1" fill="#3b2416"/><rect x="1" y="5" width="7" height="4" fill="#d6332a"/></svg>Ma présence</button>
+      <button class="tool" type="button" id="resetDemo"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="2" y="1" width="5" height="1" fill="#fff"/><rect x="1" y="2" width="1" height="5" fill="#fff"/><rect x="2" y="7" width="5" height="1" fill="#fff"/><rect x="7" y="4" width="1" height="3" fill="#fff"/><rect x="6" y="0" width="1" height="3" fill="#ffc933"/><rect x="5" y="2" width="3" height="1" fill="#ffc933"/></svg>Rejouer</button>
+    </nav>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<section class="win modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <h2><span id="modalTitle">Fenêtre</span><button class="x" type="button" id="modalClose" aria-label="Fermer">x</button></h2>
+  <div class="body" id="modalBody"></div>
+</section>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ========================================================================
+   Données de démonstration (fictives) — miroir des données de l'app.
+   ======================================================================== */
+const ME = "johan";
+const PEOPLE = {
+  johan:   { name: "Johan",   shirt: "#d6332a", hair: "#3b2416", pants: "#2b3550", skin: "#f2c39b", capacity: 35 },
+  charles: { name: "Charles", shirt: "#2f6fd6", hair: "#c9a14a", pants: "#3a3a3a", skin: "#e8b48a", capacity: 35 },
+  pierre:  { name: "Pierre",  shirt: "#2b9a4c", hair: "#1d1d1d", pants: "#4a3a2a", skin: "#c98f62", capacity: 28 },
+};
+const PROJECTS = {
+  p1: { name: "Campagne printemps", client: "Maison Solène", model: "Campagne créative", lots: ["Concept", "Création", "Déclinaisons", "Diffusion"], floor: ["#d8d2c4", "#cfc8b8"] },
+  p2: { name: "Clip « Nuit claire »", client: "Studio Nord", model: "Production audiovisuelle", lots: ["Pré-production", "Tournage", "Post-production", "Livraison"], floor: ["#c7ccd6", "#bec4cf"] },
+  p3: { name: "Stratégie Café Lumen", client: "Café Lumen", model: "Conseil / stratégie", lots: ["Diagnostic", "Recommandations", "Restitution"], floor: ["#d6d0c6", "#ccc6bb"] },
+};
+const STAGES = ["À contacter", "Premier échange", "Qualification", "Proposition envoyée", "Négociation"];
+
+function freshState() {
+  return {
+    presence: {
+      johan:   { state: "dispo", share: true },
+      charles: { state: "reunion", until: "15:30", share: true },
+      pierre:  { state: "focus", what: "Montage · Clip « Nuit claire »", until: "11:30", share: true },
+    },
+    load: { johan: 82, charles: 104, pierre: 71 },
+    tasks: [
+      { id: "t1", title: "Préparer la réunion de lancement", project: "p1", lot: "Concept", owner: "johan", status: "doing", due: "21 oct." },
+      { id: "t2", title: "Moodboards V2", project: "p1", lot: "Création", owner: "johan", status: "doing", due: "30 oct." },
+      { id: "t3", title: "Key visual", project: "p1", lot: "Création", owner: "johan", status: "blocked", due: "18 oct.", reason: "En attente des visuels produits de Claire (Maison Solène)" },
+      { id: "t4", title: "Déclinaisons print", project: "p1", lot: "Déclinaisons", owner: "johan", status: "todo", due: "25 oct." },
+      { id: "t5", title: "Plan de diffusion", project: "p1", lot: "Diffusion", owner: "johan", status: "todo", due: "29 oct." },
+      { id: "t6", title: "Brief et objectifs", project: "p1", lot: "Concept", owner: "johan", status: "done" },
+      { id: "t7", title: "Pistes créatives", project: "p1", lot: "Concept", owner: "charles", status: "done" },
+      { id: "t8", title: "Présentation des pistes", project: "p1", lot: "Concept", owner: "pierre", status: "done" },
+      { id: "t9", title: "Déclinaisons réseaux sociaux", project: "p1", lot: "Déclinaisons", owner: "charles", status: "doing", due: "25 oct." },
+      { id: "t10", title: "Shooting produits", project: "p1", lot: "Création", owner: "charles", status: "doing", due: "17 oct.", late: true },
+      { id: "t11", title: "Mise en ligne", project: "p1", lot: "Diffusion", owner: "charles", status: "todo", due: "31 oct." },
+      { id: "t12", title: "Repérages", project: "p2", lot: "Pré-production", owner: "pierre", status: "done" },
+      { id: "t13", title: "Casting", project: "p2", lot: "Pré-production", owner: "pierre", status: "done" },
+      { id: "t14", title: "Plan de tournage", project: "p2", lot: "Pré-production", owner: "charles", status: "done" },
+      { id: "t15", title: "Tournage jour 1", project: "p2", lot: "Tournage", owner: "pierre", status: "done" },
+      { id: "t16", title: "Montage", project: "p2", lot: "Post-production", owner: "pierre", status: "doing", due: "18 nov." },
+      { id: "t17", title: "Étalonnage", project: "p2", lot: "Post-production", owner: "pierre", status: "todo", due: "27 nov.", stale: 12 },
+      { id: "t24", title: "Sous-titrage du teaser", project: "p2", lot: "Livraison", owner: null, status: "todo", due: "2 déc.", est: "3 h" },
+      { id: "t25", title: "Bilan de campagne", project: "p1", lot: "Diffusion", owner: null, status: "todo", due: "21 nov.", est: "2 h" },
+      { id: "t18", title: "Export et livraison", project: "p2", lot: "Livraison", owner: "pierre", status: "todo", due: "5 déc." },
+      { id: "t19", title: "Entretiens équipe", project: "p3", lot: "Diagnostic", owner: "charles", status: "done" },
+      { id: "t20", title: "Analyse concurrence", project: "p3", lot: "Diagnostic", owner: "johan", status: "done" },
+      { id: "t21", title: "Deck de recommandations", project: "p3", lot: "Recommandations", owner: "charles", status: "doing", due: "22 oct." },
+      { id: "t22", title: "Relire le deck stratégie", project: "p3", lot: "Recommandations", owner: "charles", status: "todo", due: "22 oct." },
+      { id: "t23", title: "Présentation au client", project: "p3", lot: "Restitution", owner: "charles", status: "todo", due: "23 oct." },
+    ],
+    handoffs: [
+      { id: "h1", from: "charles", to: "johan", task: "t22", note: "Tu peux relire le deck Café Lumen ? Il me faut un œil neuf avant jeudi.", status: "pending" },
+    ],
+    help: [],
+    opps: [
+      { id: "o1", title: "Pop-up store été", client: "Maison Solène", contact: "Claire", owner: "johan", amount: 18000, stage: 0, next: "Premier appel", nextDate: "22 oct.", look: 0 },
+      { id: "o2", title: "Série de portraits", client: "Studio Nord", contact: "Léo", owner: "pierre", amount: 8000, stage: 1, next: "Envoyer les références", nextDate: "21 oct.", look: 1 },
+      { id: "o3", title: "Identité visuelle boutique", client: "Maison Solène", contact: "Claire", owner: "johan", amount: 12500, stage: 2, next: "Atelier de cadrage", nextDate: "23 oct.", look: 2 },
+      { id: "o4", title: "Lancement gamme solaire", client: "Atelier Brume", contact: "Hugo", owner: "charles", amount: 28000, stage: 3, next: "Relancer sur la proposition V2", nextDate: "18 oct.", late: true, look: 3 },
+      { id: "o5", title: "Menu digital", client: "Café Lumen", contact: "Inès", owner: "charles", amount: 4500, stage: 4, next: "Valider le périmètre", nextDate: "25 oct.", look: 4 },
+    ],
+    signals: [
+      { id: "s1", kind: "Renouvellement", client: "Maison Solène", text: "Social ads : préavis à donner avant le 30 oct.", look: 5 },
+      { id: "s2", kind: "Suite possible", client: "Galerie Opale", text: "Campagne rentrée livrée il y a 6 semaines, satisfaction 5/5, marge 46 %.", look: 6 },
+      { id: "s3", kind: "Client dormant", client: "Librairie Margelle", text: "Aucune activité depuis 8 mois.", look: 7 },
+    ],
+    delivered: [
+      { name: "Campagne rentrée — Galerie Opale", owner: "johan", stars: 5 },
+      { name: "Campagne hiver — Atelier Brume", owner: "charles", stars: 4 },
+      { name: "Stratégie éditoriale — Librairie Margelle", owner: "charles", stars: 4 },
+    ],
+    doneThisWeek: 5,
+    standup: [
+      { who: "pierre", kind: "aujourdhui", text: "Montage du clip jusqu'à 11 h 30, puis étalonnage." },
+      { who: "charles", kind: "bloque", text: "Shooting : j'attends la date de livraison des produits." },
+    ],
+    feed: [],
+    missions: {},
+    objective: 52,
+  };
+}
+
+let S = load() || freshState();
+function save() { try { localStorage.setItem("qg-demo-v1", JSON.stringify(S)); } catch (e) { /* stockage indisponible : la démo reste en mémoire */ } }
+function load() { try { const raw = localStorage.getItem("qg-demo-v1"); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
+
+const MISSIONS = [
+  ["full", "Dans ta chambre, ouvre « Ma main » et pose « Déclinaisons print » sur ton bureau."],
+  ["finish", "Termine une tâche de ton bureau pour libérer une place."],
+  ["handoff", "Passe « Plan de diffusion » à Pierre : un post-it apparaît sur son mur."],
+  ["answer", "Réponds au post-it de Charles sur ton mur."],
+  ["relance", "Hall clients : relance Hugo (Atelier Brume), en retard."],
+  ["signal", "Hall clients : fais entrer un client qui sonne à la porte."],
+  ["standup", "Poste ton stand-up dans la barre du bas (essaie « bloqué »)."],
+  ["rebalance", "Chambre de Charles : sa pile déborde, reprends-lui une tâche."],
+  ["claim", "Salle commune : prends un carton sans responsable."],
+  ["build", "Salle projet : regarde une tâche terminée devenir un meuble."],
+];
+
+/* ========================================================================
+   Moteur isométrique (pixel art, rendu en basse résolution puis agrandi)
+   ======================================================================== */
+const TW = 40, TH = 20, WH = 92;
+const cv = document.getElementById("room");
+const ctx = cv.getContext("2d");
+let W = cv.width, H = cv.height;
+ctx.imageSmoothingEnabled = false;
+let OX = 0, OY = 0, scale = 1;
+let room = null;           // pièce affichée
+let hits = [];             // zones cliquables de la dernière image
+let hover = null;
+let selected = null;
+let particles = [];
+let tick = 0;
+const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const iso = (gx, gy, z = 0) => [Math.round(OX + (gx - gy) * TW / 2), Math.round(OY + (gx + gy) * TH / 2 - z)];
+function shade(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => Math.max(0, Math.min(255, Math.round(f < 0 ? v * (1 + f) : v + (255 - v) * f))));
+  return "#" + c.map((v) => v.toString(16).padStart(2, "0")).join("");
+}
+function poly(pts, fill, line) {
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => (i ? ctx.lineTo(x + 0.5, y + 0.5) : ctx.moveTo(x + 0.5, y + 0.5)));
+  ctx.closePath();
+  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+  if (line) { ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.stroke(); }
+}
+function bbox(pts) {
+  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+  return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+}
+/** Prisme isométrique : base (gx, gy), emprise w × d tuiles, hauteur h px, posé à z px. */
+function prism(gx, gy, w, d, h, z, base, line = "#1b1b24") {
+  const A = iso(gx, gy, z + h), B = iso(gx + w, gy, z + h), C = iso(gx + w, gy + d, z + h), D = iso(gx, gy + d, z + h);
+  const B0 = iso(gx + w, gy, z), C0 = iso(gx + w, gy + d, z), D0 = iso(gx, gy + d, z);
+  poly([D, C, C0, D0], shade(base, -0.12), line);
+  poly([C, B, B0, C0], shade(base, -0.3), line);
+  poly([A, B, C, D], shade(base, 0.12), line);
+  return bbox([A, B, C, D, B0, C0, D0]);
+}
+function rect(x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); }
+
+/* --- Murs et sol --- */
+function wallPoly(side, a, b, z1, z2) {
+  return side === "L"
+    ? [iso(0, a, z1), iso(0, b, z1), iso(0, b, z2), iso(0, a, z2)]
+    : [iso(a, 0, z1), iso(b, 0, z1), iso(b, 0, z2), iso(a, 0, z2)];
+}
+function drawRoomShell() {
+  const [cols, rows] = room.size;
+  // murs
+  poly([iso(0, rows, 0), iso(0, 0, 0), iso(0, 0, WH), iso(0, rows, WH)], room.wall, "#1b1b24");
+  poly([iso(0, 0, 0), iso(cols, 0, 0), iso(cols, 0, WH), iso(0, 0, WH)], shade(room.wall, -0.1), "#1b1b24");
+  // tranche haute des murs
+  poly([iso(0, rows, WH), iso(0, 0, WH), iso(-0.18, -0.18, WH), iso(-0.18, rows, WH)], shade(room.wall, 0.35), "#1b1b24");
+  poly([iso(0, 0, WH), iso(cols, 0, WH), iso(cols, -0.18, WH), iso(-0.18, -0.18, WH)], shade(room.wall, 0.35), "#1b1b24");
+  // plinthes
+  poly(wallPoly("L", 0, rows, 0, 5), shade(room.wall, -0.35));
+  poly(wallPoly("R", 0, cols, 0, 5), shade(room.wall, -0.4));
+  // sol
+  for (let x = 0; x < cols; x++)
+    for (let y = 0; y < rows; y++) {
+      const zone = room.zones && room.zones.find((z) => x >= z.x && x < z.x + z.w && y >= z.y && y < z.y + z.d);
+      const c = zone ? ((x + y) % 2 ? zone.c1 : zone.c2) : (x + y) % 2 ? room.floor[0] : room.floor[1];
+      poly([iso(x, y), iso(x + 1, y), iso(x + 1, y + 1), iso(x, y + 1)], c, shade(c, -0.12));
+    }
+  // épaisseur du sol
+  poly([iso(0, rows), iso(cols, rows), iso(cols, rows, -6), iso(0, rows, -6)], shade(room.floor[0], -0.35), "#1b1b24");
+  poly([iso(cols, 0), iso(cols, rows), iso(cols, rows, -6), iso(cols, 0, -6)], shade(room.floor[0], -0.5), "#1b1b24");
+}
+
+/* --- Avatars (pixel art) --- */
+function drawAvatar(a) {
+  const p = PEOPLE[a.who] || a.look;
+  const [sx, sy0] = iso(a.x + 0.5, a.y + 0.5);
+  const walking = a.path && a.path.length;
+  const bob = !reduceMotion && walking ? Math.round(Math.sin(tick / 3) * 1) : 0;
+  const sy = sy0 + bob;
+  ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(sx, sy0, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
+  if (a.ring) { ctx.strokeStyle = a.ring; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(sx, sy0, 11, 5, 0, 0, Math.PI * 2); ctx.stroke(); }
+  const seated = a.seated;
+  const legH = seated ? 4 : 9;
+  const step = walking && !reduceMotion ? (Math.floor(tick / 5) % 2) : 0;
+  rect(sx - 4, sy - legH - step, 3, legH, p.pants); rect(sx + 1, sy - legH - (1 - step), 3, legH, p.pants);
+  rect(sx - 4, sy - 2, 3, 2, "#1b1b24"); rect(sx + 1, sy - 2, 3, 2, "#1b1b24");
+  const top = sy - legH - 11;
+  rect(sx - 5, top, 10, 11, p.shirt);
+  rect(sx - 5, top, 10, 1, shade(p.shirt, 0.25));
+  rect(sx - 7, top + 1, 2, 8, shade(p.shirt, -0.2)); rect(sx + 5, top + 1, 2, 8, shade(p.shirt, -0.2));
+  rect(sx - 7, top + 9, 2, 2, p.skin); rect(sx + 5, top + 9, 2, 2, p.skin);
+  const head = top - 11;
+  rect(sx - 5, head, 10, 11, p.skin);
+  rect(sx - 6, head - 1, 12, 4, p.hair); rect(sx - 6, head + 2, 2, 4, p.hair);
+  rect(sx - 3, head + 5, 1, 2, "#1b1b24"); rect(sx + 2, head + 5, 1, 2, "#1b1b24");
+  rect(sx - 1, head + 9, 3, 1, shade(p.skin, -0.3));
+  if (a.headset) { rect(sx - 6, head + 3, 1, 5, "#222"); rect(sx + 5, head + 3, 1, 5, "#222"); rect(sx - 5, head - 2, 10, 1, "#222"); }
+  // icône au-dessus de la tête
+  if (a.icon) drawIcon(sx, head - 6, a.icon);
+  return [sx - 9, head - 16, sx + 9, sy0 + 4];
+}
+function drawIcon(x, y, kind) {
+  const col = { "!": "#d9402f", "?": "#1e5a8c", "z": "#7a5ad8", "toc": "#e2a400", "...": "#586777" }[kind] || "#586777";
+  const w = kind === "toc" ? 22 : kind === "..." ? 16 : 12;
+  rect(x - w / 2, y - 12, w, 11, "#ffffff");
+  ctx.strokeStyle = "#142030"; ctx.lineWidth = 1; ctx.strokeRect(Math.round(x - w / 2) + 0.5, Math.round(y - 12) + 0.5, w - 1, 10);
+  rect(x - 1, y - 1, 3, 2, "#ffffff");
+  ctx.fillStyle = col; ctx.font = "bold 9px 'Pixelify Sans', monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(kind === "z" ? "Zz" : kind, Math.round(x), Math.round(y - 6.5));
+}
+
+/* --- Mobilier --- */
+const FURNI = {
+  desk(it) {
+    const b = prism(it.x, it.y, 2, 1, 14, 0, "#9a6b3f");
+    // écran : sa couleur dit ce qui se passe
+    const scr = { focus: "#3fa9ff", reunion: "#a48ef0", dispo: "#7fd38f", calme: "#5b6b7c" }[it.screen] || "#5b6b7c";
+    prism(it.x + 0.55, it.y + 0.15, 0.9, 0.25, 15, 14, "#2a2f3a");
+    poly([iso(it.x + 0.6, it.y + 0.4, 17), iso(it.x + 1.4, it.y + 0.4, 17), iso(it.x + 1.4, it.y + 0.4, 27), iso(it.x + 0.6, it.y + 0.4, 27)], scr);
+    // tâches posées sur le bureau (3 places)
+    (it.papers || []).forEach((st, i) => {
+      const c = st === "blocked" ? "#ff8a7a" : st === "doing" ? "#cfe6ff" : "#fff";
+      prism(it.x + 0.1 + i * 0.55, it.y + 0.55, 0.4, 0.35, 2 + (st === "blocked" ? 2 : 0), 14, c, "#3a3a46");
+    });
+    return b;
+  },
+  chair(it) { prism(it.x + 0.2, it.y + 0.2, 0.6, 0.6, 9, 0, it.c || "#3a3f4f"); return prism(it.x + 0.2, it.y + 0.7, 0.6, 0.1, 14, 9, it.c || "#3a3f4f"); },
+  bed(it) {
+    const b = prism(it.x, it.y, 2, 3, 10, 0, "#8a5a3a");
+    prism(it.x + 0.05, it.y + 0.8, 1.9, 2.15, 4, 10, it.c || "#5a7ec8");
+    prism(it.x + 0.2, it.y + 0.15, 1.6, 0.55, 5, 10, "#f2f2f2");
+    return b;
+  },
+  shelf(it) {
+    const b = prism(it.x, it.y, 1.4, 0.35, 44, 0, "#7b5534");
+    for (let i = 0; i < 3; i++) prism(it.x + 0.05, it.y + 0.05, 1.3, 0.3, 1, 12 + i * 13, "#5c3f26");
+    (it.trophies || 0) && Array.from({ length: Math.min(6, it.trophies) }).forEach((_, i) => {
+      const lvl = Math.floor(i / 2), off = (i % 2) * 0.6;
+      prism(it.x + 0.2 + off, it.y + 0.1, 0.25, 0.15, 7, 13 + lvl * 13, "#ffc933");
+    });
+    return b;
+  },
+  plant(it) {
+    const b = prism(it.x + 0.25, it.y + 0.25, 0.5, 0.5, 9, 0, "#b4643c");
+    const [sx, sy] = iso(it.x + 0.5, it.y + 0.5, 9);
+    const g = it.grow ?? 1;
+    const r = 5 + Math.round(9 * g);
+    ctx.fillStyle = "#2b8a3e"; ctx.beginPath(); ctx.arc(sx, sy - r, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#43b058"; ctx.beginPath(); ctx.arc(sx - r / 3, sy - r * 1.2, r * 0.55, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#1b1b24"; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(sx, sy - r, r, 0, Math.PI * 2); ctx.stroke();
+    return [Math.min(b[0], sx - r), sy - r * 2 - 2, Math.max(b[2], sx + r), b[3]];
+  },
+  lamp(it) {
+    const [sx, sy] = iso(it.x + 0.5, it.y + 0.5);
+    const col = { focus: "#ff5d4a", reunion: "#a48ef0", dispo: "#7fd38f", calme: "#9aa6b2" }[it.state] || "#9aa6b2";
+    if (!reduceMotion || true) { ctx.fillStyle = col + "33"; ctx.beginPath(); ctx.ellipse(sx, sy, 22, 11, 0, 0, Math.PI * 2); ctx.fill(); }
+    prism(it.x + 0.4, it.y + 0.4, 0.2, 0.2, 30, 0, "#3a3f4f");
+    const b = prism(it.x + 0.25, it.y + 0.25, 0.5, 0.5, 9, 30, col);
+    return [b[0], b[1], b[2], sy + 3];
+  },
+  pile(it) {
+    const n = Math.max(1, Math.round(it.load / 15));
+    let b;
+    for (let i = 0; i < n; i++) b = prism(it.x + 0.15 + (i % 2) * 0.05, it.y + 0.2, 0.7, 0.55, 4, i * 4, it.load > 100 ? (i >= n - 2 ? "#ff8a7a" : "#f4efe4") : "#f4efe4", "#5a5a66");
+    if (it.load > 100 && !reduceMotion && tick % 9 === 0) spawn(it.x + 0.5, it.y + 0.5, n * 4 + 6, "steam");
+    const [sx, sy] = iso(it.x + 0.5, it.y + 0.5);
+    return [sx - 16, sy - n * 4 - 14, sx + 16, sy + 4];
+  },
+  sofa(it) { const b = prism(it.x, it.y, 2, 1, 8, 0, it.c || "#c0563f"); prism(it.x, it.y, 2, 0.3, 16, 8, it.c || "#c0563f"); return b; },
+  table(it) { const b = prism(it.x + 0.1, it.y + 0.1, it.w || 1.8, it.d || 1.8, 12, 0, it.c || "#c9a26b"); if (it.screen) { prism(it.x + 0.5, it.y + 0.3, 1, 0.2, 14, 12, "#2a2f3a"); poly([iso(it.x + 0.55, it.y + 0.5, 15), iso(it.x + 1.45, it.y + 0.5, 15), iso(it.x + 1.45, it.y + 0.5, 25), iso(it.x + 0.55, it.y + 0.5, 25)], "#5fb3ff"); } return b; },
+  counter(it) { return prism(it.x, it.y, it.w || 2, it.d || 1, 18, 0, it.c || "#566a85"); },
+  boxes(it) {
+    const n = it.n || 0;
+    let b = prism(it.x + 0.1, it.y + 0.1, 0.8, 0.8, 12, 0, "#c9965a");
+    for (let i = 1; i < Math.min(n, 3); i++) b = prism(it.x + 0.2 + (i % 2) * 0.05, it.y + 0.15, 0.6, 0.6, 10, 12 * i - (i > 1 ? 2 : 0), "#d8a868");
+    const [sx, sy] = iso(it.x + 0.5, it.y + 0.5);
+    return [sx - 18, sy - 12 * Math.min(n, 3) - 18, sx + 18, sy + 6];
+  },
+  bench(it) { return prism(it.x, it.y, it.w || 2, 0.6, 7, 0, "#7a6a55"); },
+  rug(it) { poly([iso(it.x, it.y, 0), iso(it.x + it.w, it.y, 0), iso(it.x + it.w, it.y + it.d, 0), iso(it.x, it.y + it.d, 0)], it.c, shade(it.c, -0.3)); const [a, b] = iso(it.x, it.y); return [0, 0, 0, 0]; },
+  crate(it) {
+    const t = it.task;
+    if (t.status === "done") {
+      // tâche terminée : un vrai meuble « fini » (cadre doré sur socle)
+      const b = prism(it.x + 0.15, it.y + 0.15, 0.7, 0.7, 10, 0, "#e8e2d4");
+      prism(it.x + 0.25, it.y + 0.4, 0.5, 0.15, 14, 10, "#ffc933");
+      return b;
+    }
+    const base = t.status === "blocked" ? "#e06a5a" : t.status === "doing" ? "#d8a55a" : "#b98a52";
+    const b = prism(it.x + 0.15, it.y + 0.15, 0.7, 0.7, 14, 0, base);
+    if (t.status === "doing") { prism(it.x + 0.15, it.y + 0.15, 0.06, 0.06, 24, 14, "#7a7a86"); prism(it.x + 0.79, it.y + 0.15, 0.06, 0.06, 24, 14, "#7a7a86"); prism(it.x + 0.15, it.y + 0.15, 0.7, 0.06, 2, 36, "#7a7a86"); }
+    if (t.status === "blocked" && !reduceMotion && tick % 12 === 0) spawn(it.x + 0.5, it.y + 0.5, 18, "smoke");
+    if (t.stale) {
+      const [a1, a2] = iso(it.x + 0.15, it.y + 0.85, 14), [c1, c2] = iso(it.x + 0.85, it.y + 0.85, 14), [b1, b2] = iso(it.x + 0.5, it.y + 0.85, 4);
+      ctx.strokeStyle = "rgba(240,240,240,.9)"; ctx.lineWidth = 1; ctx.beginPath();
+      ctx.moveTo(a1, a2); ctx.lineTo(b1, b2); ctx.lineTo(c1, c2); ctx.moveTo(a1, a2 + 3); ctx.lineTo(c1, c2 + 3); ctx.moveTo((a1 + c1) / 2, (a2 + c2) / 2); ctx.lineTo(b1, b2); ctx.stroke();
+    }
+    if (!t.owner) { ctx.fillStyle = "#142030"; ctx.font = "bold 9px 'Pixelify Sans', monospace"; ctx.textAlign = "center"; const [qx, qy] = iso(it.x + 0.5, it.y + 0.5, 20); ctx.fillText("?", qx, qy); }
+    const [sx, sy] = iso(it.x + 0.5, it.y + 0.5);
+    return [b[0], b[1] - (t.status === "doing" ? 26 : 0), b[2], b[3]];
+  },
+  visitor() { return null; },
+};
+const WALLITEM = {
+  door(it) {
+    const pts = wallPoly(it.side, it.a, it.a + 1, 0, 58);
+    poly(pts, "#3b2b1e", "#1b1b24");
+    const inner = wallPoly(it.side, it.a + 0.12, it.a + 0.88, 0, 52);
+    poly(inner, "#5a412b", "#1b1b24");
+    return bbox(pts);
+  },
+  board(it) {
+    const pts = wallPoly(it.side, it.a, it.b, 30, 76);
+    poly(pts, "#fafafa", "#1b1b24");
+    // bons accrochés (contenu réel dans la fenêtre d'info)
+    const n = it.n || 0;
+    for (let i = 0; i < Math.min(n, 8); i++) {
+      const col = i % 4, row = Math.floor(i / 4);
+      const a = it.a + 0.15 + col * ((it.b - it.a - 0.3) / 4), z = 66 - row * 16;
+      poly(wallPoly(it.side, a, a + 0.35, z - 11, z), it.color || "#ffe36b", "#8a6d00");
+    }
+    return bbox(pts);
+  },
+  postits(it) {
+    const pts = wallPoly(it.side, it.a, it.b, 34, 72);
+    poly(pts, "#c9a26b", "#1b1b24");
+    poly(wallPoly(it.side, it.a + 0.08, it.b - 0.08, 37, 69), "#e2c79a");
+    (it.notes || []).slice(0, 6).forEach((n, i) => {
+      const a = it.a + 0.18 + (i % 3) * 0.55, z = 66 - Math.floor(i / 3) * 15;
+      const blink = n.pending && !reduceMotion && Math.floor(tick / 20) % 2;
+      poly(wallPoly(it.side, a, a + 0.42, z - 12, z), blink ? "#fff59a" : n.color, "#6e5a10");
+    });
+    return bbox(pts);
+  },
+  poster(it) { const pts = wallPoly(it.side, it.a, it.b, 34, 70); poly(pts, it.c || "#1e5a8c", "#1b1b24"); poly(wallPoly(it.side, it.a + 0.1, it.b - 0.1, 38, 66), shade(it.c || "#1e5a8c", 0.3)); return bbox(pts); },
+  window(it) { const pts = wallPoly(it.side, it.a, it.b, 36, 76); poly(pts, "#9fd3ff", "#1b1b24"); poly(wallPoly(it.side, (it.a + it.b) / 2 - 0.03, (it.a + it.b) / 2 + 0.03, 36, 76), "#ffffff"); return bbox(pts); },
+  bell(it) { const pts = wallPoly(it.side, it.a, it.a + 0.25, 38, 48); poly(pts, it.ring && Math.floor(tick / 8) % 2 ? "#ffc933" : "#d0a020", "#1b1b24"); return bbox(pts); },
+};
+
+/* --- Particules --- */
+function spawn(gx, gy, z, kind) {
+  if (reduceMotion) return;
+  const [x, y] = iso(gx, gy, z);
+  if (kind === "confetti") for (let i = 0; i < 24; i++) particles.push({ x, y, vx: (Math.random() - 0.5) * 3, vy: -Math.random() * 3 - 1, life: 50, c: ["#ffc933", "#d9402f", "#2b9a4c", "#2f6fd6"][i % 4], g: 0.12, s: 2 });
+  else particles.push({ x: x + (Math.random() - 0.5) * 6, y, vx: (Math.random() - 0.5) * 0.3, vy: -0.4, life: 40, c: kind === "smoke" ? "rgba(70,70,80,.55)" : "rgba(255,255,255,.7)", g: 0, s: kind === "smoke" ? 4 : 3 });
+}
+
+/* ========================================================================
+   Pièces
+   ======================================================================== */
+const ROOMS = {};
+function tasksOf(owner, statuses) { return S.tasks.filter((t) => t.owner === owner && statuses.includes(t.status)); }
+function deskOf(who) { return S.tasks.filter((t) => t.owner === who && (t.status === "doing" || t.status === "blocked")); }
+
+function bedroom(who, colors) {
+  const pr = S.presence[who];
+  const shown = pr.share ? pr.state : "calme";
+  const notes = S.handoffs.filter((h) => h.to === who && h.status === "pending").map((h) => ({ color: "#ffe36b", pending: true }))
+    .concat(S.help.filter((h) => h.who !== who && h.status === "open").map(() => ({ color: "#bfe1ff", pending: true })));
+  const trophies = S.delivered.filter((d) => d.owner === who).length;
+  const avatars = [];
+  const meHere = who === ME;
+  if (!meHere) avatars.push({ id: who, who, x: 3, y: 2, seated: true, headset: pr.state === "reunion", icon: pr.state === "reunion" ? "..." : pr.state === "focus" ? "z" : S.help.some((h) => h.who === who && h.status === "open") ? "?" : null });
+  return {
+    id: "chambre-" + who, name: "Chambre de " + PEOPLE[who].name, kind: "bedroom", owner: who,
+    size: [7, 6], floor: colors.floor, wall: colors.wall,
+    hint: who === ME
+      ? "Ta chambre. Ton bureau n'a que 3 places : on finit avant de reprendre. Clique sur le sol pour te déplacer."
+      : `${PEOPLE[who].name} travaille d'ici. ${shownText(who)}`,
+    wall_items: [
+      { type: "postits", side: "L", a: 0.6, b: 2.6, notes, ref: { kind: "wall", who } },
+      { type: "window", side: "R", a: 4.2, b: 5.8 },
+      { type: "poster", side: "R", a: 2.4, b: 3.6, c: colors.accent, ref: { kind: "poster", who } },
+      { type: "door", side: "L", a: 4.3, ref: { kind: "door", to: "commune" } },
+    ].concat(S.opps.some((o) => o.owner === who && o.late) ? [{ type: "bell", side: "L", a: 5.4, ring: true, ref: { kind: "bell", who } }] : []),
+    items: [
+      { type: "desk", x: 2, y: 1, blocks: [[2, 1], [3, 1]], screen: shown, papers: deskOf(who).map((t) => t.status), ref: { kind: "desk", who } },
+      { type: "chair", x: 3, y: 2, c: colors.chair },
+      { type: "lamp", x: 5, y: 1, state: shown, blocks: [[5, 1]], ref: { kind: "lamp", who } },
+      { type: "bed", x: 4, y: 3, c: colors.bed, blocks: [[4, 3], [5, 3], [4, 4], [5, 4], [4, 5], [5, 5]] },
+      { type: "shelf", x: 0.2, y: 3.1, trophies, blocks: [[0, 3]], ref: { kind: "shelf", who } },
+      { type: "pile", x: 1, y: 1, load: S.load[who], blocks: [[1, 1]], ref: { kind: "pile", who } },
+    ],
+    avatars,
+    entry: [1, 4],
+  };
+}
+function shownText(who) {
+  const p = S.presence[who];
+  if (!p.share) return "Il n'a pas partagé son statut : on le considère au calme.";
+  if (p.state === "reunion") return `En réunion jusqu'à ${p.until} : ses messages attendront.`;
+  if (p.state === "focus") return `En focus (${p.what}) jusqu'à ${p.until} : pas de notification, ta demande l'attendra sur son mur.`;
+  return "Disponible.";
+}
+
+function buildRooms() {
+  ROOMS["chambre-johan"] = bedroom("johan", { floor: ["#b98f63", "#ae855a"], wall: "#e9d7c3", accent: "#d6332a", chair: "#3a3f4f", bed: "#d6332a" });
+  ROOMS["chambre-charles"] = bedroom("charles", { floor: ["#9fb0c4", "#95a7bc"], wall: "#d9e4f2", accent: "#2f6fd6", chair: "#2a2f3a", bed: "#2f6fd6" });
+  ROOMS["chambre-pierre"] = bedroom("pierre", { floor: ["#a9b48d", "#9fab84"], wall: "#e3ead5", accent: "#2b9a4c", chair: "#4a3a2a", bed: "#2b9a4c" });
+
+  const briefN = briefItems().length;
+  const others = Object.keys(PEOPLE).filter((w) => w !== ME);
+  ROOMS["commune"] = {
+    id: "commune", name: "Salle commune", kind: "commune", size: [9, 7], floor: ["#caa576", "#c19c6c"], wall: "#f0e6d8",
+    hint: "La salle commune : le brief du jour au tableau, les quêtes de la semaine, le stand-up et le point visio. Les portes mènent au hall clients et aux chambres.",
+    wall_items: [
+      { type: "board", side: "R", a: 1, b: 4.2, n: briefN, color: "#ffe36b", ref: { kind: "brief" } },
+      { type: "board", side: "R", a: 5, b: 7.4, n: questList().filter((q) => !q.done).length, color: "#bfe8cb", ref: { kind: "quests" } },
+      { type: "postits", side: "L", a: 1, b: 3, notes: S.standup.map((s) => ({ color: s.kind === "bloque" ? "#ffb3a8" : "#ffe36b" })), ref: { kind: "standup" } },
+      { type: "door", side: "L", a: 4.5, ref: { kind: "door", to: "hall" } },
+      { type: "door", side: "R", a: 8, ref: { kind: "door", to: "nav" } },
+    ],
+    items: [
+      { type: "rug", x: 2, y: 2, w: 4, d: 3, c: "#7a4fa3" },
+      { type: "table", x: 3, y: 3, w: 1.8, d: 1.8, c: "#c9a26b", screen: true, blocks: [[3, 3], [4, 3], [3, 4], [4, 4]], ref: { kind: "visio" } },
+      { type: "plant", x: 7, y: 1, grow: S.objective / 100, blocks: [[7, 1]], ref: { kind: "plant" } },
+      { type: "shelf", x: 0.2, y: 5.4, trophies: S.delivered.length, blocks: [[0, 5]], ref: { kind: "trophies" } },
+      { type: "sofa", x: 6, y: 5, c: "#c0563f", blocks: [[6, 5], [7, 5]] },
+      { type: "boxes", x: 1, y: 1, n: S.tasks.filter((t) => !t.owner).length, blocks: [[1, 1]], ref: { kind: "boxes" } },
+    ],
+    avatars: others.filter((w) => S.presence[w].state === "dispo").map((w, i) => ({ id: w, who: w, x: 6 + i, y: 3 })),
+    entry: [1, 5],
+  };
+
+  const hallSpots = [[2, 5], [3, 3], [5, 3], [7, 2], [8, 4]];
+  ROOMS["hall"] = {
+    id: "hall", name: "Hall clients", kind: "hall", size: [10, 7], floor: ["#b7c3cf", "#adbac7"], wall: "#dfe6ee",
+    hint: "Le hall clients, c'est le CRM : chaque visiteur est une opportunité, placé à son étape. Le « ! » rouge = relance en retard. Les clients qui sonnent à la porte sont les opportunités détectées.",
+    zones: STAGES.map((s, i) => ({ x: hallSpots[i][0] - 1, y: hallSpots[i][1] - 1, w: 2, d: 2, c1: ["#e9edf2", "#dfe9f7", "#e3f1e6", "#fbf0d8", "#f7e2df"][i], c2: ["#e2e7ed", "#d6e2f3", "#d9ecdd", "#f6e8c8", "#f2d6d2"][i], label: s })),
+    wall_items: [
+      { type: "door", side: "L", a: 5.5, ref: { kind: "door", to: "dehors" } },
+      { type: "bell", side: "L", a: 6.6, ring: S.signals.length > 0, ref: { kind: "signals" } },
+      { type: "door", side: "R", a: 0.6, ref: { kind: "door", to: "commune" } },
+      { type: "poster", side: "R", a: 3.5, b: 5.5, c: "#1e5a8c", ref: { kind: "pipeline" } },
+    ],
+    items: [
+      { type: "bench", x: 1, y: 5.9, w: 2 },
+      { type: "sofa", x: 2.5, y: 1.4, c: "#5a7ec8", blocks: [[2, 1], [3, 1]] },
+      { type: "table", x: 4.6, y: 3.6, w: 0.9, d: 0.9, c: "#c9a26b", blocks: [[4, 3]] },
+      { type: "counter", x: 6, y: 0.6, w: 2.4, d: 0.8, blocks: [[6, 0], [7, 0]] },
+      { type: "table", x: 8.6, y: 2.6, w: 1.2, d: 0.8, c: "#7b5534", blocks: [[8, 2]] },
+      { type: "plant", x: 9, y: 6, grow: 0.5, blocks: [[9, 6]] },
+    ],
+    avatars: S.opps.map((o, i) => {
+      const [x, y] = hallSpots[o.stage];
+      const sameStage = S.opps.filter((p) => p.stage === o.stage);
+      const k = sameStage.indexOf(o);
+      return { id: o.id, look: VISITORS[o.look % VISITORS.length], x: x + (k % 2 ? -1 : 0), y: y - (k > 1 ? 1 : 0), ring: PEOPLE[o.owner].shirt, icon: o.late ? "!" : null, ref: { kind: "opp", id: o.id } };
+    }).concat(S.signals.map((s, i) => ({ id: s.id, look: VISITORS[s.look % VISITORS.length], x: 0, y: 4 + i * 0.9, icon: "toc", ref: { kind: "signal", id: s.id } }))),
+    entry: [1, 2],
+  };
+
+  for (const [pid, p] of Object.entries(PROJECTS)) {
+    const n = p.lots.length;
+    const zoneW = 2;
+    const cols = n * zoneW + 1, rows = 6;
+    const zones = p.lots.map((lot, i) => ({ x: 1 + i * zoneW - 1 + 1, y: 1, w: zoneW, d: rows - 2, c1: ["#efe7d6", "#e2ecf6", "#e5f2e7", "#f6e6e2"][i % 4], c2: ["#e7dcc7", "#d7e4f1", "#d8ebdb", "#f1dbd5"][i % 4], label: lot }));
+    const items = [];
+    p.lots.forEach((lot, i) => {
+      S.tasks.filter((t) => t.project === pid && t.lot === lot).forEach((t, k) => {
+        const x = 1 + i * zoneW + (k % 2), y = 1 + Math.floor(k / 2);
+        items.push({ type: "crate", x, y, task: t, blocks: [[x, y]], ref: { kind: "task", id: t.id } });
+      });
+    });
+    ROOMS[pid] = {
+      id: pid, name: "Salle projet · " + p.name, kind: "project", project: pid, size: [cols, rows], floor: p.floor, wall: "#e6e9ee", zones,
+      hint: `${p.client} · modèle ${p.model}. Une zone par lot ; chaque caisse est une tâche. Terminée, elle devient un meuble. En rouge et qui fume : bloquée.`,
+      wall_items: [{ type: "door", side: "L", a: rows - 1.5, ref: { kind: "door", to: "nav" } }, { type: "poster", side: "R", a: 0.6, b: 2.4, c: "#2b3550", ref: { kind: "projectinfo", id: pid } }],
+      items,
+      avatars: [],
+      entry: [0, rows - 1],
+    };
+  }
+}
+const VISITORS = [
+  { shirt: "#f08bb0", hair: "#7a3b1e", pants: "#2b3550", skin: "#f2c39b" },
+  { shirt: "#ffb347", hair: "#1d1d1d", pants: "#3a3a3a", skin: "#c98f62" },
+  { shirt: "#9b6be0", hair: "#c9a14a", pants: "#2b3550", skin: "#f2c39b" },
+  { shirt: "#3fbfb0", hair: "#5a3a22", pants: "#4a3a2a", skin: "#e8b48a" },
+  { shirt: "#f2f2f2", hair: "#9a9a9a", pants: "#1d1d1d", skin: "#f2c39b" },
+  { shirt: "#e05a5a", hair: "#2b1a12", pants: "#2b3550", skin: "#e8b48a" },
+  { shirt: "#5aa0e0", hair: "#e0c060", pants: "#3a3a3a", skin: "#f2c39b" },
+  { shirt: "#8a8f6a", hair: "#4a4a4a", pants: "#4a3a2a", skin: "#c98f62" },
+];
+
+/* ========================================================================
+   Boucle : mise en page, rendu, clics, déplacements
+   ======================================================================== */
+let me = { id: ME, who: ME, x: 1, y: 4, path: [] };
+let currentRoomId = "chambre-johan";
+let avatarsLive = [];
+
+function enterRoom(id, opts = {}) {
+  currentRoomId = id;
+  buildRooms();
+  room = ROOMS[id];
+  const [cols, rows] = room.size;
+  // la toile épouse la pièce : elle remplit la scène quelle que soit sa taille
+  W = Math.round((cols + rows) * TW / 2 + 70);
+  H = Math.round((cols + rows) * TH / 2 + WH + 96);
+  cv.width = W; cv.height = H; ctx.imageSmoothingEnabled = false;
+  OX = Math.round(W / 2 - (cols - rows) * TW / 4);
+  OY = Math.round(WH + 62);
+  me = { id: ME, who: ME, x: room.entry[0], y: room.entry[1], path: [] };
+  avatarsLive = room.avatars.map((a) => ({ ...a, path: [] }));
+  document.getElementById("roomTitle").textContent = room.name;
+  document.getElementById("roomHint").textContent = room.hint;
+  cv.setAttribute("aria-label", room.name + ". " + room.hint);
+  fit();
+  if (!opts.keepSelection) { selected = null; renderInfo(); }
+  renderObjects();
+  renderPresence();
+  layoutTags();
+  if (room.kind === "project" && S.tasks.some((t) => t.project === room.project && t.status === "done" && t.justDone)) mission("build");
+}
+function refreshRoom() {
+  // reconstruit la pièce sans déplacer les avatars présents
+  const keep = new Map(avatarsLive.map((a) => [a.id, a]));
+  buildRooms();
+  room = ROOMS[currentRoomId];
+  avatarsLive = room.avatars.map((a) => {
+    const old = keep.get(a.id);
+    return old && !a.forceMove ? { ...a, x: old.x, y: old.y, path: old.path, targetX: a.x, targetY: a.y } : { ...a, path: [] };
+  });
+  avatarsLive.forEach((a) => { if (a.targetX != null && (Math.round(a.x) !== a.targetX || Math.round(a.y) !== a.targetY)) walkTo(a, a.targetX, a.targetY); });
+  renderObjects();
+  renderPresence();
+  layoutTags();
+}
+
+function fit() {
+  const stage = document.getElementById("stage");
+  const avail = stage.clientWidth - 4;
+  const maxH = Math.max(280, window.innerHeight * 0.6);
+  let s = Math.min(avail / W, maxH / H);
+  if (s >= 2) s = Math.floor(s * 2) / 2;
+  scale = s;
+  cv.style.width = Math.round(W * s) + "px";
+  cv.style.height = Math.round(H * s) + "px";
+  layoutTags();
+}
+
+function blocked() {
+  const [cols, rows] = room.size;
+  const g = Array.from({ length: cols }, () => Array(rows).fill(false));
+  room.items.forEach((it) => (it.blocks || []).forEach(([x, y]) => { if (g[x] && y < rows) g[x][y] = true; }));
+  avatarsLive.forEach((a) => { const x = Math.round(a.x), y = Math.round(a.y); if (g[x] && y >= 0 && y < rows) g[x][y] = true; });
+  return g;
+}
+function findPath(fx, fy, tx, ty) {
+  const [cols, rows] = room.size;
+  const g = blocked();
+  if (tx < 0 || ty < 0 || tx >= cols || ty >= rows || g[tx][ty]) return null;
+  const key = (x, y) => x + "," + y;
+  const prev = new Map([[key(fx, fy), null]]);
+  const q = [[fx, fy]];
+  while (q.length) {
+    const [x, y] = q.shift();
+    if (x === tx && y === ty) break;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= cols || ny >= rows || g[nx][ny] || prev.has(key(nx, ny))) continue;
+      prev.set(key(nx, ny), [x, y]); q.push([nx, ny]);
+    }
+  }
+  if (!prev.has(key(tx, ty))) return null;
+  const path = [];
+  for (let c = [tx, ty]; c && !(c[0] === fx && c[1] === fy); c = prev.get(key(c[0], c[1]))) path.unshift(c);
+  return path;
+}
+function walkTo(a, tx, ty) {
+  const p = findPath(Math.round(a.x), Math.round(a.y), tx, ty) || [[tx, ty]];
+  a.path = p;
+  if (reduceMotion && p.length) { const last = p[p.length - 1]; a.x = last[0]; a.y = last[1]; a.path = []; }
+}
+function stepAvatar(a, dt) {
+  if (!a.path || !a.path.length) return;
+  const [tx, ty] = a.path[0];
+  const sp = 3.2 * dt;
+  const dx = tx - a.x, dy = ty - a.y, dist = Math.hypot(dx, dy);
+  if (dist <= sp) { a.x = tx; a.y = ty; a.path.shift(); if (!a.path.length && a.onArrive) { const f = a.onArrive; a.onArrive = null; f(); } }
+  else { a.x += (dx / dist) * sp; a.y += (dy / dist) * sp; }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  hits = [];
+  drawRoomShell();
+  // éléments muraux
+  (room.wall_items || []).forEach((it) => {
+    const bb = WALLITEM[it.type](it);
+    if (it.ref && bb) hits.push({ bb, ref: it.ref, depth: -1, label: labelFor(it.ref) });
+  });
+  // objets + avatars triés par profondeur
+  const ents = [];
+  room.items.forEach((it) => ents.push({ d: it.type === "rug" ? -2 : it.x + it.y + (it.type === "bed" ? 3 : it.type === "desk" ? 1.5 : 1), draw: () => FURNI[it.type](it), ref: it.ref }));
+  avatarsLive.concat([me]).forEach((a) => ents.push({ d: a.x + a.y + 1.2, draw: () => drawAvatar(a), ref: a.ref || (a.who ? { kind: "person", who: a.who } : null) }));
+  ents.sort((a, b) => a.d - b.d).forEach((e) => {
+    const bb = e.draw();
+    if (e.ref && bb) hits.push({ bb, ref: e.ref, depth: e.d, label: labelFor(e.ref) });
+  });
+  // surbrillance du survol / de la sélection
+  for (const h of hits) {
+    if ((hover && sameRef(h.ref, hover)) || (selected && sameRef(h.ref, selected))) {
+      ctx.strokeStyle = selected && sameRef(h.ref, selected) ? "#ffc933" : "rgba(255,255,255,.8)";
+      ctx.setLineDash([3, 2]); ctx.lineWidth = 1;
+      ctx.strokeRect(h.bb[0] - 2.5, h.bb[1] - 2.5, h.bb[2] - h.bb[0] + 5, h.bb[3] - h.bb[1] + 5);
+      ctx.setLineDash([]);
+    }
+  }
+  // particules
+  particles.forEach((p) => { ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s); });
+}
+const sameRef = (a, b) => a && b && a.kind === b.kind && a.id === b.id && a.who === b.who && a.to === b.to;
+
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now; tick++;
+  avatarsLive.concat([me]).forEach((a) => stepAvatar(a, dt));
+  particles.forEach((p) => { p.x += p.vx; p.y += p.vy; p.vy += p.g; p.life--; });
+  particles = particles.filter((p) => p.life > 0);
+  draw();
+  if (tick % 6 === 0) layoutTags();
+  requestAnimationFrame(loop);
+}
+
+function toLogical(ev) {
+  const r = cv.getBoundingClientRect();
+  return [(ev.clientX - r.left) * (W / r.width), (ev.clientY - r.top) * (H / r.height)];
+}
+function pick(x, y) {
+  const found = hits.filter((h) => x >= h.bb[0] - 2 && x <= h.bb[2] + 2 && y >= h.bb[1] - 2 && y <= h.bb[3] + 2);
+  found.sort((a, b) => b.depth - a.depth);
+  return found[0] || null;
+}
+cv.addEventListener("mousemove", (ev) => { const [x, y] = toLogical(ev); const h = pick(x, y); hover = h ? h.ref : null; cv.title = h ? h.label : ""; });
+cv.addEventListener("mouseleave", () => { hover = null; });
+cv.addEventListener("click", (ev) => {
+  const [x, y] = toLogical(ev);
+  const h = pick(x, y);
+  if (h) { select(h.ref); return; }
+  // sinon : se déplacer sur la case visée
+  const dx = (x - OX) / (TW / 2), dy = (y - OY) / (TH / 2);
+  const gx = Math.floor((dx + dy) / 2), gy = Math.floor((dy - dx) / 2);
+  walkTo(me, gx, gy);
+});
+
+/* --- Étiquettes DOM (zones, noms) --- */
+function layoutTags() {
+  const ov = document.getElementById("overlay");
+  if (!room) return;
+  const r = cv.getBoundingClientRect(), sr = document.getElementById("stage").getBoundingClientRect();
+  const offX = r.left - sr.left, offY = r.top - sr.top;
+  const k = r.width / W;
+  const tags = [];
+  (room.zones || []).forEach((z) => {
+    const [x, y] = iso(z.x + z.w / 2, z.y + z.d - 0.25);
+    const extra = room.kind === "project" ? lotProgress(room.project, z.label) : "";
+    tags.push(`<span class="tag floor" style="left:${offX + x * k}px;top:${offY + y * k}px">${esc(z.label)}${extra}</span>`);
+  });
+  avatarsLive.concat([me]).forEach((a) => {
+    const [x, y] = iso(a.x + 0.5, a.y + 0.5);
+    const focused = a.ref && ((hover && sameRef(a.ref, hover)) || (selected && sameRef(a.ref, selected)));
+    const name = a.who ? PEOPLE[a.who].name : !focused ? "" : a.ref.kind === "opp" ? oppById(a.ref.id).client : a.ref.kind === "signal" ? sigById(a.ref.id).client : "";
+    if (name) tags.push(`<span class="tag name" style="left:${offX + x * k}px;top:${offY + (y - 50) * k}px">${esc(name)}</span>`);
+  });
+  ov.innerHTML = tags.join("");
+}
+function lotProgress(pid, lot) {
+  const ts = S.tasks.filter((t) => t.project === pid && t.lot === lot);
+  return ts.length ? ` · ${ts.filter((t) => t.status === "done").length}/${ts.length}` : "";
+}
+
+/* ========================================================================
+   Logique métier de la démo
+   ======================================================================== */
+const taskById = (id) => S.tasks.find((t) => t.id === id);
+const ownerColor = (w) => (w ? PEOPLE[w].shirt : "#7d8a98");
+const ownerInitial = (w) => (w ? PEOPLE[w].name[0] : "?");
+const ownerName = (w) => (w ? PEOPLE[w].name : "Sans responsable");
+const oppById = (id) => S.opps.find((o) => o.id === id);
+const sigById = (id) => S.signals.find((s) => s.id === id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const money = (n) => n.toLocaleString("fr-FR") + " €";
+const WIP = 3;
+
+function briefItems() {
+  const items = [];
+  S.tasks.filter((t) => t.owner === ME && t.status === "blocked").forEach((t) => items.push({ sev: 3, text: `Bloquée : ${t.title}`, sub: t.reason, go: { room: "p1", ref: { kind: "task", id: t.id } } }));
+  S.opps.filter((o) => o.late).forEach((o) => items.push({ sev: 3, text: `Relance en retard : ${o.client}`, sub: `${o.title} · ${PEOPLE[o.owner].name}`, go: { room: "hall", ref: { kind: "opp", id: o.id } } }));
+  S.handoffs.filter((h) => h.to === ME && h.status === "pending").forEach((h) => items.push({ sev: 2, text: `Post-it de ${PEOPLE[h.from].name}`, sub: taskById(h.task).title, go: { room: "chambre-johan", ref: { kind: "wall", who: ME } } }));
+  S.help.filter((h) => h.who !== ME && h.status === "open").forEach((h) => items.push({ sev: 2, text: `${PEOPLE[h.who].name} demande un coup de main`, sub: h.text, go: { room: "commune", ref: { kind: "standup" } } }));
+  Object.keys(PEOPLE).filter((w) => S.load[w] > 100).forEach((w) => items.push({ sev: 2, text: `${PEOPLE[w].name} est à ${S.load[w]} % cette semaine`, sub: "Reprendre une de ses tâches ?", go: { room: "chambre-" + w, ref: { kind: "pile", who: w } } }));
+  S.signals.forEach((s) => items.push({ sev: 1, text: `${s.kind} : ${s.client}`, sub: s.text, go: { room: "hall", ref: { kind: "signal", id: s.id } } }));
+  return items.sort((a, b) => b.sev - a.sev);
+}
+function questList() {
+  const late = S.opps.filter((o) => o.late).length;
+  const blockedN = S.tasks.filter((t) => t.status === "blocked").length;
+  const pend = S.handoffs.filter((h) => h.status === "pending").length;
+  return [
+    { id: "q1", name: "Finir 8 tâches cette semaine", now: Math.min(8, S.doneThisWeek), max: 8, badge: "Semaine propre" },
+    { id: "q2", name: "Zéro relance en retard", now: late ? 0 : 1, max: 1, sub: late ? `${late} relance en retard` : "Toutes les relances sont à jour", badge: "Rien ne traîne" },
+    { id: "q3", name: "Rien de bloqué plus de 2 jours", now: blockedN ? 0 : 1, max: 1, sub: blockedN ? `${blockedN} tâche bloquée` : "Rien n'est bloqué", badge: "Débloqueurs" },
+    { id: "q4", name: "Répondre aux post-its dans la journée", now: pend ? 0 : 1, max: 1, sub: pend ? `${pend} post-it en attente` : "Aucun post-it en attente", badge: "Coup de main" },
+  ].map((q) => ({ ...q, done: q.now >= q.max }));
+}
+
+function log(text, who = null, ref = null) {
+  S.feed.unshift({ text, who, at: Date.now(), ref });
+  S.feed = S.feed.slice(0, 40);
+  renderFeed();
+}
+function say(who, text, sys = false) {
+  const box = document.getElementById("chatlog");
+  box.querySelectorAll(".bubble").forEach((b) => b.classList.add("old"));
+  const el = document.createElement("div");
+  el.className = "bubble" + (sys ? " sys" : "");
+  el.innerHTML = `<span class="who" style="background:${who ? PEOPLE[who].shirt : "#ffc933"}"></span><span>${who ? `<b>${esc(PEOPLE[who].name)} :</b> ` : ""}${esc(text)}</span>`;
+  box.appendChild(el);
+  while (box.children.length > 3) box.firstChild.remove();
+  setTimeout(() => el.remove(), 9000);
+}
+function toast(title, text) {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = `<b>${esc(title)}</b>${esc(text)}`;
+  const box = document.getElementById("toasts");
+  box.appendChild(el);
+  while (box.children.length > 3) box.firstChild.remove();
+  setTimeout(() => el.remove(), 5200);
+}
+function mission(id) {
+  if (S.missions[id]) return;
+  S.missions[id] = true; save(); renderMissions();
+  const n = Object.keys(S.missions).length;
+  if (n === MISSIONS.length) toast("Visite terminée", "Tu as fait le tour du QG. Dis-moi ce qu'on garde, ce qu'on enlève.");
+}
+function after(ms, fn) { setTimeout(() => { fn(); save(); refreshRoom(); renderInfo(); renderAll(); }, ms); }
+
+let pendingPlace = null;
+const ACT = {
+  place(id, _to, override) {
+    const t = taskById(id);
+    if (deskOf(ME).length >= WIP && !override) {
+      mission("full");
+      toast("Bureau plein (3 sur 3)", "Termine, débloque ou repose une tâche avant d'en prendre une nouvelle. En cas d'urgence, tu peux dépasser en donnant un motif.");
+      say(null, "Ton bureau est plein : on finit avant de reprendre.", true);
+      closeModal();
+      if (currentRoomId !== "chambre-johan") enterRoom("chambre-johan");
+      pendingPlace = id; selected = { kind: "desk", who: ME }; renderInfo();
+      return;
+    }
+    t.status = "doing"; if (override) t.override = override; pendingPlace = null;
+    log(override ? `Johan dépasse sa limite de 3 pour « ${t.title} » : ${override}` : `Johan pose « ${t.title} » sur son bureau.`, ME);
+    save(); refreshRoom(); renderAll();
+  },
+  finish(id) {
+    const t = taskById(id);
+    t.status = "done"; t.justDone = true; t.stale = 0; S.doneThisWeek++; if (t.owner) S.load[t.owner] = Math.max(0, S.load[t.owner] - 6);
+    log(`${PEOPLE[t.owner].name} termine « ${t.title} ».`, t.owner);
+    toast("Tâche terminée", `« ${t.title} » rejoint la salle projet sous forme de meuble. Quête « Finir 8 tâches » : ${Math.min(8, S.doneThisWeek)}/8.`);
+    say(t.owner, `C'est fait : ${t.title}.`);
+    if (currentRoomId === t.project) spawn(2, 2, 30, "confetti");
+    mission("finish");
+    const lotLeft = S.tasks.filter((x) => x.project === t.project && x.lot === t.lot && x.status !== "done").length;
+    if (!lotLeft) { toast("Clap de fin", `Le lot « ${t.lot} » de ${PROJECTS[t.project].name} est terminé.`); log(`Lot « ${t.lot} » terminé.`, null); }
+    checkQuests(); save(); refreshRoom(); renderAll();
+  },
+  unplace(id) { const t = taskById(id); t.status = "todo"; log(`Johan repose « ${t.title} » dans sa main.`, ME); save(); refreshRoom(); renderAll(); },
+  help(id) {
+    const t = taskById(id);
+    if (S.help.some((h) => h.task === id && h.status === "open")) return toast("Déjà demandé", "Ta demande est affichée dans la salle commune.");
+    S.help.push({ id: "help" + Date.now(), who: ME, task: id, text: `Bloqué sur « ${t.title} » : ${t.reason || "besoin d'un avis"}`, status: "open" });
+    log(`Johan demande un coup de main sur « ${t.title} ».`, ME);
+    say(ME, `Besoin d'un coup de main : ${t.title}.`);
+    save(); refreshRoom(); renderAll();
+    after(3200, () => {
+      const h = S.help.find((x) => x.task === id && x.status === "open"); if (!h) return;
+      h.status = "taken"; h.by = "charles";
+      say("charles", "Je relance Claire à 14 h pour les visuels produits. (réponse simulée)");
+      log("Charles prend la demande d'aide sur « Key visual ».", "charles");
+    });
+  },
+  unblock(id) { const t = taskById(id); t.status = "doing"; t.reason = null; log(`« ${t.title} » est débloquée.`, ME); toast("Débloquée", `« ${t.title} » repasse en cours.`); checkQuests(); save(); refreshRoom(); renderAll(); },
+  handoff(id, to, note) {
+    const t = taskById(id);
+    S.handoffs.push({ id: "h" + Date.now(), from: ME, to, task: id, note: note || `Tu peux prendre « ${t.title} » ?`, status: "pending" });
+    log(`Johan propose « ${t.title} » à ${PEOPLE[to].name} (post-it).`, ME);
+    toast("Post-it déposé", `Sur le mur de ${PEOPLE[to].name}. ${S.presence[to].state === "focus" ? "Il est en focus : pas de notification, il le verra à la fin de sa session." : "Il reçoit une notification."}`);
+    if (to === "pierre") mission("handoff");
+    closeModal(); save(); refreshRoom(); renderAll();
+    after(4200, () => {
+      const h = S.handoffs.find((x) => x.task === id && x.to === to && x.status === "pending"); if (!h) return;
+      h.status = "accepted"; t.owner = to;
+      say(to, `Je prends « ${t.title} ». (réponse simulée)`);
+      log(`${PEOPLE[to].name} accepte « ${t.title} ».`, to);
+    });
+  },
+  accept(hid) {
+    const h = S.handoffs.find((x) => x.id === hid);
+    h.status = "accepted"; const t = taskById(h.task); t.owner = ME; t.status = "todo";
+    log(`Johan prend « ${t.title} » (post-it de ${PEOPLE[h.from].name}).`, ME);
+    say(ME, `OK ${PEOPLE[h.from].name}, je prends « ${t.title} ».`);
+    toast("Tâche reprise", `« ${t.title} » est dans ta main. Pose-la sur ton bureau quand une place se libère.`);
+    mission("answer"); checkQuests(); save(); refreshRoom(); renderAll();
+  },
+  decline(hid) {
+    const h = S.handoffs.find((x) => x.id === hid);
+    h.status = "declined";
+    log(`Johan répond à ${PEOPLE[h.from].name} : pas cette semaine.`, ME);
+    say(ME, `${PEOPLE[h.from].name}, pas possible cette semaine : je suis à ${S.load[ME]} %.`);
+    mission("answer"); checkQuests(); save(); refreshRoom(); renderAll();
+  },
+  take(id) {
+    const t = taskById(id); const from = t.owner;
+    t.owner = ME; S.load[from] = Math.max(0, S.load[from] - 9); S.load[ME] += 9;
+    log(`Johan reprend « ${t.title} » à ${PEOPLE[from].name}.`, ME);
+    say(from, `Merci Johan ! (réponse simulée)`);
+    toast("Charge rééquilibrée", `${PEOPLE[from].name} passe à ${S.load[from]} %, toi à ${S.load[ME]} %.`);
+    mission("rebalance"); save(); refreshRoom(); renderAll();
+  },
+  relance(id) {
+    const o = oppById(id);
+    o.late = false; o.nextDate = "28 oct."; o.lastContact = "aujourd'hui";
+    log(`Relance notée : ${o.client} (${o.title}). Prochaine action le 28 oct.`, ME);
+    toast("Relance notée", `${o.contact} (${o.client}) : échange ajouté à l'historique, prochaine relance le 28 oct.`);
+    mission("relance"); checkQuests(); save(); refreshRoom(); renderAll();
+  },
+  advance(id) {
+    const o = oppById(id);
+    if (o.stage >= STAGES.length - 1) return;
+    o.stage++; o.late = false;
+    log(`${o.client} passe à « ${STAGES[o.stage]} ».`, o.owner);
+    save(); refreshRoom(); renderAll();
+  },
+  win(id) {
+    const o = oppById(id);
+    S.opps = S.opps.filter((x) => x !== o);
+    toast("Signé !", `${o.title} (${o.client}, ${money(o.amount)}) : le projet est créé avec son modèle, ${PEOPLE[o.owner].name} en est responsable.`);
+    log(`Gagné : ${o.title} pour ${o.client}. Projet créé.`, o.owner);
+    say(o.owner, `On a signé ${o.client} !`);
+    spawn(3, 3, 40, "confetti");
+    save(); refreshRoom(); renderAll(); selected = null; renderInfo();
+  },
+  owner(id, who) {
+    const o = oppById(id); o.proposedTo = who;
+    log(`${PEOPLE[o.owner].name} propose ${o.client} à ${PEOPLE[who].name}.`, o.owner);
+    toast("Proposition envoyée", `${PEOPLE[who].name} voit le client, ses 3 derniers échanges et la prochaine action avant d'accepter.`);
+    save(); refreshRoom(); renderAll();
+    after(3600, () => {
+      const x = oppById(id); if (!x || x.proposedTo !== who) return;
+      x.owner = who; x.proposedTo = null; x.next = "Appel de reprise"; x.nextDate = "24 oct.";
+      say(who, `J'accepte ${x.client}. Je l'appelle le 24 oct. (réponse simulée)`);
+      log(`${PEOPLE[who].name} reprend ${x.client} · prochaine action le 24 oct.`, who);
+    });
+  },
+  claim(id) {
+    const t = taskById(id); t.owner = ME; S.load[ME] += 6;
+    log(`Johan prend le carton « ${t.title} ».`, ME);
+    toast("Carton pris", `« ${t.title} » est dans ta main. Ta charge passe à ${S.load[ME]} %.`);
+    mission("claim"); save(); refreshRoom(); renderAll();
+  },
+  letIn(id) {
+    const s = sigById(id);
+    S.signals = S.signals.filter((x) => x !== s);
+    const titles = { "Renouvellement": "Renouvellement social ads", "Suite possible": "Nouvelle campagne", "Client dormant": "Reprise de contact" };
+    S.opps.push({ id: "o" + Date.now(), title: titles[s.kind] || "Nouvelle opportunité", client: s.client, contact: "—", owner: ME, amount: s.kind === "Renouvellement" ? 14400 : 15000, stage: 0, next: "Premier appel", nextDate: "23 oct.", look: s.look });
+    log(`${s.client} entre dans le hall : opportunité créée (${s.kind.toLowerCase()}).`, ME);
+    toast("Opportunité créée", `${s.client} attend à « À contacter ». Prochaine action : premier appel le 23 oct.`);
+    mission("signal"); save(); refreshRoom(); renderAll();
+  },
+};
+function checkQuests() {
+  const before = S.badges || [];
+  const done = questList().filter((q) => q.done).map((q) => q.badge);
+  done.filter((b) => !before.includes(b)).forEach((b) => toast("Badge d'équipe", `« ${b} » : bien joué, ensemble.`));
+  S.badges = Array.from(new Set(before.concat(done)));
+}
+
+/* ========================================================================
+   Fenêtres
+   ======================================================================== */
+function labelFor(ref) {
+  if (!ref) return "";
+  return ({
+    desk: "Bureau", boxes: "Cartons sans responsable", bell: "Sonnette", lamp: "Présence", pile: "Charge de la semaine", wall: "Mur à post-it", shelf: "Étagère à trophées",
+    door: "Porte", brief: "Tableau du jour", quests: "Quêtes de la semaine", standup: "Stand-up", visio: "Table visio",
+    plant: "Objectif de l'année", trophies: "Projets livrés", opp: "Opportunité", signal: "Sonne à la porte", task: "Tâche",
+    person: "Associé", poster: "Projets en cours", pipeline: "Pipeline", projectinfo: "Projet", signals: "Sonnette",
+  })[ref.kind] || "";
+}
+function select(ref) {
+  if (ref.kind === "door") {
+    if (ref.to === "nav") return openModal("nav");
+    if (ref.to === "dehors") return toast("Dehors", "Les clients qui sonnent attendent juste devant la porte.");
+    return walkThenEnter(ref.to);
+  }
+  selected = ref; renderInfo();
+  const h = hits.find((x) => sameRef(x.ref, ref));
+  if (h && window.innerWidth < 900) document.getElementById("info").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+}
+function walkThenEnter(to) { enterRoom(to); }
+function person(who, sub) { return `<div class="row"><span class="mini" style="background:${PEOPLE[who].shirt}">${PEOPLE[who].name[0]}</span><div class="grow"><div class="t">${esc(PEOPLE[who].name)}</div>${sub ? `<div class="s">${sub}</div>` : ""}</div></div>`; }
+function statusPill(t) {
+  const map = { todo: ["todo", "À faire"], doing: ["doing", "En cours"], done: ["done", "Terminée"], blocked: ["blocked", "Bloquée"] };
+  const [c, l] = map[t.status];
+  return `<span class="pill ${c}">${l}</span>${t.late && t.status !== "done" ? ' <span class="pill late">En retard</span>' : ""}`;
+}
+function taskRow(t, actions = "") {
+  return `<div class="row"><span class="mini" style="background:${ownerColor(t.owner)}">${ownerInitial(t.owner)}</span><div class="grow"><div class="t">${esc(t.title)}</div><div class="s">${esc(PROJECTS[t.project].name)} · ${esc(t.lot)}${t.due ? " · échéance " + esc(t.due) : ""}</div><div>${statusPill(t)}</div>${t.reason ? `<div class="s">${esc(t.reason)}</div>` : ""}${t.override ? `<div class="s">Hors limite : ${esc(t.override)}</div>` : ""}${t.stale ? `<div class="s">Aucune activité depuis ${t.stale} jours : à trancher au grand ménage du vendredi.</div>` : ""}${actions ? `<div class="actions" style="margin-top:6px">${actions}</div>` : ""}</div></div>`;
+}
+const B = (label, act, args, cls = "") => `<button type="button" class="btn ${cls}" data-act="${act}" data-args='${esc(JSON.stringify(args))}'>${esc(label)}</button>`;
+
+function renderInfo() {
+  const box = document.getElementById("infoBody");
+  const r = selected;
+  if (!r) {
+    box.innerHTML = `<h3>${esc(room ? room.name : "")}</h3><p class="muted">Clique un objet ou une personne dans la pièce (ou dans la liste sous la pièce). Clique le sol pour te déplacer.</p>${room && room.kind === "bedroom" && room.owner === ME ? renderDesk(ME) : ""}`;
+    return;
+  }
+  let html = "";
+  if (r.kind === "desk") html = renderDesk(r.who);
+  else if (r.kind === "lamp" || r.kind === "person") {
+    const p = S.presence[r.who];
+    const lbl = { dispo: ["done", "Disponible"], focus: ["blocked", "En focus · ne pas déranger"], reunion: ["meet", "En réunion"], calme: ["todo", "Au calme"] }[p.share ? p.state : "calme"];
+    html = `<h3>${esc(PEOPLE[r.who].name)}</h3><div><span class="pill ${lbl[0]}">${lbl[1]}</span></div><p class="small">${esc(shownText(r.who))}</p>`
+      + (r.who === ME ? renderPresenceForm() : `<div class="actions">${B("Laisser un post-it", "composeTo", { who: r.who }, "main")}</div><p class="small muted">Un post-it est rattaché à une tâche : pas de message perdu dans une conversation.</p>`);
+  } else if (r.kind === "pile") {
+    const l = S.load[r.who];
+    html = `<h3>Charge de ${esc(PEOPLE[r.who].name)}</h3><div class="bar ${l > 100 ? "hot" : l > 85 ? "mid" : ""}"><i style="width:${Math.min(100, l)}%"></i></div><p><b>${l} %</b> de sa capacité cette semaine (${PEOPLE[r.who].capacity} h).</p>`;
+    if (r.who !== ME && l > 100) {
+      const cands = S.tasks.filter((t) => t.owner === r.who && t.status === "todo");
+      html += `<p class="small">Sa pile déborde. Reprends une tâche qu'il n'a pas commencée :</p><div class="rows">${cands.map((t) => taskRow(t, B("Je la reprends", "take", { id: t.id }, "main"))).join("") || '<p class="muted small">Rien à reprendre pour l\'instant.</p>'}</div>`;
+    } else if (r.who === ME) html += `<p class="small muted">Au-delà de 100 %, ta chambre passe en surchauffe et les autres peuvent te proposer de reprendre une tâche.</p>`;
+  } else if (r.kind === "wall") {
+    const notes = S.handoffs.filter((h) => h.to === r.who);
+    const helps = S.help.filter((h) => h.who !== r.who && h.status === "open");
+    html = `<h3>Mur de ${esc(PEOPLE[r.who].name)}</h3>` + (notes.length || helps.length ? `<div class="rows">${notes.map((h) => {
+      const t = taskById(h.task);
+      const st = h.status === "pending" ? '<span class="pill doing">En attente</span>' : h.status === "accepted" ? '<span class="pill done">Acceptée</span>' : '<span class="pill todo">Refusée</span>';
+      const acts = h.status === "pending" && r.who === ME ? B("Je prends", "accept", { id: h.id }, "main") + B("Pas cette semaine", "decline", { id: h.id }) : "";
+      return `<div class="row"><span class="mini" style="background:${PEOPLE[h.from].shirt}">${PEOPLE[h.from].name[0]}</span><div class="grow"><div class="t">${esc(t.title)}</div><div class="s">${esc(PEOPLE[h.from].name)} : « ${esc(h.note)} »</div><div>${st}</div>${acts ? `<div class="actions" style="margin-top:6px">${acts}</div>` : ""}</div></div>`;
+    }).join("")}${helps.map((h) => `<div class="row"><span class="mini" style="background:${PEOPLE[h.who].shirt}">?</span><div class="grow"><div class="t">Coup de main demandé</div><div class="s">${esc(h.text)}</div></div></div>`).join("")}</div>` : '<p class="muted">Aucun post-it.</p>')
+      + `<p class="small muted">Un post-it = une tâche proposée, avec un mot. Accepter la fait passer dans ta main ; refuser répond poliment avec ta charge.</p>`;
+  } else if (r.kind === "shelf" || r.kind === "trophies") {
+    const list = r.kind === "shelf" ? S.delivered.filter((d) => d.owner === r.who) : S.delivered;
+    html = `<h3>${r.kind === "shelf" ? "Trophées de " + esc(PEOPLE[r.who].name) : "Projets livrés"}</h3><div class="rows">${list.map((d) => `<div class="row"><div class="grow"><div class="t">${esc(d.name)}</div><div class="s">Satisfaction client ${"★".repeat(d.stars)}${"☆".repeat(5 - d.stars)} · responsable ${esc(PEOPLE[d.owner].name)}</div></div></div>`).join("") || '<p class="muted">Pas encore de trophée.</p>'}</div><p class="small muted">Un projet clôturé (checklist et satisfaction remplies) ajoute un trophée.</p>`;
+  } else if (r.kind === "brief") {
+    const items = briefItems();
+    html = `<h3>Aujourd'hui</h3><p class="small muted">${items.filter((i) => i.sev >= 3).length} points urgents sur ${items.length}.</p><div class="rows">${items.map((i, k) => `<button type="button" class="row" style="text-align:left;cursor:pointer" data-go="${k}"><span class="mini" style="background:${i.sev >= 3 ? "var(--alert)" : i.sev === 2 ? "var(--coin)" : "#7d8a98"}">${i.sev >= 3 ? "!" : "•"}</span><div class="grow"><div class="t">${esc(i.text)}</div><div class="s">${esc(i.sub || "")}</div></div></button>`).join("")}</div>`;
+    box.innerHTML = html; bindActions(box);
+    box.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => { const it = items[+b.dataset.go]; enterRoom(it.go.room); selected = it.go.ref; renderInfo(); }));
+    return;
+  } else if (r.kind === "quests") {
+    html = renderQuests();
+  } else if (r.kind === "standup") {
+    html = `<h3>Stand-up du jour</h3><p class="small muted">Asynchrone : chacun poste quand il commence. Un « bloqué » devient une demande d'aide visible de tous.</p><div class="rows">${S.standup.map((s) => `<div class="row"><span class="mini" style="background:${PEOPLE[s.who].shirt}">${PEOPLE[s.who].name[0]}</span><div class="grow"><div class="t">${s.kind === "bloque" ? "Bloqué" : "Aujourd'hui"}</div><div class="s">${esc(s.text)}</div></div></div>`).join("")}</div>${S.help.length ? `<h3>Demandes de coup de main</h3><div class="rows">${S.help.map((h) => `<div class="row"><span class="mini" style="background:${PEOPLE[h.who].shirt}">?</span><div class="grow"><div class="t">${esc(PEOPLE[h.who].name)}</div><div class="s">${esc(h.text)}</div><div>${h.status === "open" ? '<span class="pill doing">Ouverte</span>' : `<span class="pill done">Prise par ${esc(PEOPLE[h.by].name)}</span>`}</div></div></div>`).join("")}</div>` : ""}<p class="small">Poste le tien avec la barre du bas.</p>`;
+  } else if (r.kind === "visio") {
+    html = `<h3>Point du lundi · 9 h 30</h3><p class="small muted">L'ordre du jour se remplit tout seul :</p><div class="rows">
+      <div class="row"><div class="grow"><div class="t">Bloqués</div><div class="s">${S.tasks.filter((t) => t.status === "blocked").map((t) => esc(t.title)).join(", ") || "Rien"}</div></div></div>
+      <div class="row"><div class="grow"><div class="t">Relances en retard</div><div class="s">${S.opps.filter((o) => o.late).map((o) => esc(o.client)).join(", ") || "Aucune"}</div></div></div>
+      <div class="row"><div class="grow"><div class="t">Charge</div><div class="s">${Object.keys(PEOPLE).map((w) => `${PEOPLE[w].name} ${S.load[w]} %`).join(" · ")}</div></div></div>
+      <div class="row"><div class="grow"><div class="t">Décision à voter</div><div class="s">Dépassement de budget · Clip « Nuit claire » (1/2 avis)</div></div></div></div>
+      <div class="row" style="border-color:#ffd56b;background:#fffbe9"><div class="grow"><div class="t">Compte rendu à écrire</div><div class="s">« Revue des visuels avec Maison Solène » (hier) n'a pas encore de compte rendu.</div><div class="actions" style="margin-top:6px">${B("Écrire le compte rendu", "cr", {}, "main")}</div></div></div>
+      <div class="actions">${B("Rejoindre la visio", "visio", {}, "")}</div><p class="small muted">Le lien visio reste celui de votre outil habituel (Meet) : le QG ne fait que le rappeler.</p>`;
+  } else if (r.kind === "boxes") {
+    const list = S.tasks.filter((t) => !t.owner);
+    html = `<h3>Cartons sans responsable</h3><p class="small muted">Les tâches que personne n'a encore prises. On se les répartit selon la charge de chacun :</p><p class="small">${Object.keys(PEOPLE).map((w) => `${PEOPLE[w].name} ${S.load[w]} %`).join(" · ")}</p><div class="rows">${list.map((t) => taskRow(t, B("Je prends", "claim", { id: t.id }, "main"))).join("") || '<p class="muted">Le tas est vide : tout a un responsable.</p>'}</div>`;
+  } else if (r.kind === "bell") {
+    const lateMine = S.opps.filter((o) => o.owner === r.who && o.late);
+    html = `<h3>Ça sonne chez ${esc(PEOPLE[r.who].name)}</h3><p class="small muted">Un client dont la relance est dépassée vient sonner à la porte de son responsable. Pour le faire partir, il faut noter l'échange et fixer la prochaine action.</p><div class="rows">${lateMine.map((o) => `<div class="row"><div class="grow"><div class="t">${esc(o.client)} · ${esc(o.title)}</div><div class="s">${esc(o.next)} (prévu le ${esc(o.nextDate)})</div><div class="actions" style="margin-top:6px">${B("Relancer (noter l'échange)", "relance", { id: o.id }, "main")}</div></div></div>`).join("") || '<p class="muted">Plus personne à la porte.</p>'}</div>`;
+  } else if (r.kind === "plant") {
+    html = `<h3>Objectif 2026</h3><p>CA facturé : <b>124 300 €</b> sur 240 000 €.</p><div class="bar mid"><i style="width:${S.objective}%"></i></div><p class="small muted">${S.objective} % atteint, 80 % de l'année écoulée. La plante grandit avec le CA de l'équipe : un objectif commun, pas un classement.</p>`;
+  } else if (r.kind === "opp") {
+    const o = oppById(r.id); if (!o) { selected = null; return renderInfo(); }
+    html = `<h3>${esc(o.title)}</h3><p class="small">${esc(o.client)} · contact ${esc(o.contact)}</p><div><span class="pill doing">${STAGES[o.stage]}</span>${o.late ? ' <span class="pill late">Relance en retard</span>' : ""}</div>
+      <div class="rows"><div class="row"><div class="grow"><div class="t">${money(o.amount)} HT</div><div class="s">Prochaine action : ${esc(o.next)} · ${esc(o.nextDate)}</div></div></div>${person(o.owner, "responsable commercial")}</div>
+      <div class="actions">${o.late ? B("Relancer (noter l'échange)", "relance", { id: o.id }, "main") : ""}${o.stage < STAGES.length - 1 ? B("Étape suivante : " + STAGES[o.stage + 1], "advance", { id: o.id }) : B("Gagné : créer le projet", "win", { id: o.id }, "go")}</div>
+      ${o.proposedTo ? `<p class="small"><span class="pill doing">Proposé à ${esc(PEOPLE[o.proposedTo].name)}</span> en attente de son accord.</p>` : `<div class="actions"><select class="inp" id="oppOwner" aria-label="Proposer ce client à">${Object.keys(PEOPLE).filter((w) => w !== o.owner).map((w) => `<option value="${w}">${PEOPLE[w].name} · ${S.load[w]} %</option>`).join("")}</select><button type="button" class="btn" id="oppPropose">Proposer à…</button></div><p class="small muted">Le client ne change de responsable que si l'autre accepte et fixe sa prochaine action.</p>`}`;
+    box.innerHTML = html; bindActions(box);
+    const pb = document.getElementById("oppPropose");
+    pb && pb.addEventListener("click", () => ACT.owner(o.id, document.getElementById("oppOwner").value));
+    return;
+  } else if (r.kind === "signal" || r.kind === "signals") {
+    const list = r.kind === "signal" ? [sigById(r.id)].filter(Boolean) : S.signals;
+    html = `<h3>On sonne à la porte</h3><p class="small muted">Opportunités détectées par les règles du CRM (contrats, projets réussis, clients endormis).</p><div class="rows">${list.map((s) => `<div class="row"><div class="grow"><div class="t">${esc(s.kind)} · ${esc(s.client)}</div><div class="s">${esc(s.text)}</div><div class="actions" style="margin-top:6px">${B("Faire entrer (créer l'opportunité)", "letIn", { id: s.id }, "main")}</div></div></div>`).join("") || '<p class="muted">Personne à la porte.</p>'}</div>`;
+  } else if (r.kind === "task") {
+    const t = taskById(r.id);
+    let acts = "";
+    if (t.owner === ME) {
+      if (t.status === "todo") acts = B("Poser sur mon bureau", "place", { id: t.id }, "main") + B("Passer à…", "compose", { id: t.id });
+      if (t.status === "doing") acts = B("Terminer", "finish", { id: t.id }, "go") + B("Je suis bloqué", "block", { id: t.id }, "warn");
+      if (t.status === "blocked") acts = B("Demander de l'aide", "help", { id: t.id }, "main") + B("C'est débloqué", "unblock", { id: t.id }, "go");
+    } else if (!t.owner) acts = B("Je prends", "claim", { id: t.id }, "main");
+    else if (t.status !== "done") acts = B("Proposer mon aide", "offer", { id: t.id });
+    html = `<h3>${esc(t.title)}</h3>${taskRow(t, acts)}<p class="small muted">${t.status === "done" ? "Terminée : la caisse est devenue un meuble de la salle projet." : "Ouvre la fiche complète dans l'app pour les commentaires, le temps et les dépendances."}</p>`;
+  } else if (r.kind === "poster" || r.kind === "projectinfo") {
+    const pid = r.kind === "projectinfo" ? r.id : null;
+    const list = pid ? [pid] : Object.keys(PROJECTS).filter((id) => S.tasks.some((t) => t.project === id && t.owner === r.who && t.status !== "done"));
+    html = `<h3>${pid ? esc(PROJECTS[pid].name) : "Projets de " + esc(PEOPLE[r.who].name)}</h3><div class="rows">${list.map((id) => { const ts = S.tasks.filter((t) => t.project === id); const d = ts.filter((t) => t.status === "done").length; return `<button type="button" class="nav-room" data-room="${id}"><span class="ic" style="background:${PROJECTS[id].floor[1]}"></span><span class="grow"><b>${esc(PROJECTS[id].name)}</b><span class="s"> · ${esc(PROJECTS[id].client)}</span><div class="bar" style="margin-top:4px"><i style="width:${Math.round((d / ts.length) * 100)}%"></i></div></span></button>`; }).join("")}</div>`;
+    box.innerHTML = html; bindRooms(box); return;
+  } else if (r.kind === "pipeline") {
+    html = `<h3>Pipeline</h3><div class="rows">${STAGES.map((s, i) => { const os = S.opps.filter((o) => o.stage === i); return `<div class="row"><div class="grow"><div class="t">${s} (${os.length})</div><div class="s">${os.map((o) => esc(o.client)).join(", ") || "—"}</div></div><b>${money(os.reduce((n, o) => n + o.amount, 0))}</b></div>`; }).join("")}</div>`;
+  }
+  box.innerHTML = html; bindActions(box);
+}
+function renderDesk(who) {
+  const d = deskOf(who);
+  const slots = Array.from({ length: Math.max(WIP, d.length) }, (_, i) => d[i]);
+  const waiting = who === ME && pendingPlace ? taskById(pendingPlace) : null;
+  const mine = who === ME;
+  return `<h3>${mine ? "Mon bureau" : "Bureau de " + esc(PEOPLE[who].name)} · ${d.length}/${WIP}</h3>
+  <div class="slots">${slots.map((t) => t ? `<div class="slot full ${t.status === "blocked" ? "blocked" : ""}"><b>${esc(t.title)}</b><span class="muted">${t.status === "blocked" ? "Bloquée" : "En cours"}</span></div>` : '<div class="slot"><span class="muted">Place libre</span></div>').join("")}</div>
+  ${waiting ? `<div class="row" style="border-color:#eba59b;background:#fff4f2"><div class="grow"><div class="t">Bureau plein pour « ${esc(waiting.title)} »</div><div class="s">Termine ou repose une tâche ci-dessous. Si c'est vraiment urgent, dépasse la limite en le justifiant (visible dans le fil).</div><div class="actions" style="margin-top:6px"><input class="inp" id="ovReason" maxlength="120" placeholder="Motif (ex. demande client urgente)" aria-label="Motif du dépassement" style="flex:1;min-width:0"><button type="button" class="btn warn" id="ovGo">Dépasser</button></div></div></div>` : ""}
+  ${mine ? `<div class="rows">${d.map((t) => taskRow(t, t.status === "blocked" ? B("Demander de l'aide", "help", { id: t.id }, "main") + B("C'est débloqué", "unblock", { id: t.id }, "go") + B("Reposer", "unplace", { id: t.id }) : B("Terminer", "finish", { id: t.id }, "go") + B("Je suis bloqué", "block", { id: t.id }, "warn"))).join("")}</div>
+  <div class="actions">${B("Ouvrir ma main (" + tasksOf(ME, ["todo"]).length + ")", "openHand", {}, "main")}</div>
+  <p class="small muted">3 places, pas une de plus : une tâche bloquée occupe une place tant qu'elle n'est pas débloquée ou reposée. C'est ce qui nous fait finir.</p>` : ""}`;
+}
+function renderPresenceForm() {
+  const p = S.presence[ME];
+  return `<label class="field">Mon statut<select class="inp" id="myState">${[["dispo", "Disponible"], ["focus", "En focus (ne pas déranger)"], ["reunion", "En réunion"]].map(([v, l]) => `<option value="${v}"${p.state === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+  <label class="small" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="myShare"${p.share ? " checked" : ""}> Montrer mon statut et ma tâche en cours aux associés</label>
+  <p class="small muted">Jamais d'heures, d'historique ou de suivi d'écran : seulement ton statut, si tu le partages.</p>`;
+}
+function renderQuests() {
+  const qs = questList();
+  return `<h3>Quêtes de la semaine</h3><p class="small muted">Collectives : on les réussit ensemble, aucun classement.</p><div class="rows">${qs.map((q) => `<div class="row"><span class="mini" style="background:${q.done ? "var(--go)" : "#7d8a98"}">${q.done ? "✓" : "…"}</span><div class="grow"><div class="t">${esc(q.name)}</div><div class="s">${q.sub ? esc(q.sub) : `${q.now}/${q.max}`} · badge « ${esc(q.badge)} »</div>${q.max > 1 ? `<div class="bar" style="margin-top:4px"><i style="width:${(q.now / q.max) * 100}%"></i></div>` : ""}</div></div>`).join("")}</div><div class="row"><span class="mini" style="background:#8a6d00">R</span><div class="grow"><div class="t">Rituel : grand ménage, vendredi 16 h (20 min)</div><div class="s">Les tâches sans activité depuis 10 jours prennent la poussière (${S.tasks.filter((t) => t.stale && t.status !== "done").length} en ce moment). Pour chacune : finir cette semaine, mettre en attente, découper ou annuler.</div></div></div>${(S.badges || []).length ? `<p class="small">Badges gagnés : ${S.badges.map(esc).join(", ")}</p>` : ""}`;
+}
+
+function bindActions(root) {
+  const ov = root.querySelector("#ovGo");
+  ov && ov.addEventListener("click", () => {
+    const r = root.querySelector("#ovReason").value.trim();
+    if (!r) { root.querySelector("#ovReason").focus(); return toast("Motif requis", "Dis en quelques mots pourquoi tu dépasses la limite de 3."); }
+    ACT.place(pendingPlace, null, r);
+  });
+  root.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", () => {
+    const a = b.dataset.act, args = JSON.parse(b.dataset.args || "{}");
+    if (a === "openHand") return openModal("hand");
+    if (a === "compose") return openModal("compose", args);
+    if (a === "composeTo") return openModal("compose", { to: args.who });
+    if (a === "block") { const t = taskById(args.id); t.status = "blocked"; t.reason = "À préciser dans le stand-up"; log(`« ${t.title} » est bloquée.`, ME); save(); refreshRoom(); renderAll(); return; }
+    if (a === "offer") { const t = taskById(args.id); log(`Johan propose son aide à ${PEOPLE[t.owner].name} sur « ${t.title} ».`, ME); toast("Aide proposée", `${PEOPLE[t.owner].name} trouvera ta proposition sur son mur.`); return; }
+    if (a === "visio") return toast("Visio", "Dans l'app, ce bouton ouvre le lien Meet de l'événement du calendrier.");
+    if (a === "cr") return toast("Compte rendu", "Dans l'app, ce bouton ouvre « Nouveau compte rendu », prérempli depuis la réunion : les lignes « [ ] » deviennent des tâches.");
+    if (a === "accept" || a === "decline") return ACT[a](args.id);
+    ACT[a](args.id, args.to);
+  }));
+}
+function bindRooms(root) { root.querySelectorAll("[data-room]").forEach((b) => b.addEventListener("click", () => { closeModal(); enterRoom(b.dataset.room); })); }
+
+/* --- Modales : navigateur, main, post-it, quêtes, présence --- */
+let lastFocus = null;
+function openModal(kind, args = {}) {
+  lastFocus = document.activeElement;
+  const title = document.getElementById("modalTitle"), body = document.getElementById("modalBody");
+  if (kind === "nav") {
+    title.textContent = "Navigateur";
+    const roomsList = [
+      ["Ma chambre", "chambre-johan", PEOPLE.johan.shirt, `Bureau ${deskOf(ME).length}/3 · ${S.handoffs.filter((h) => h.to === ME && h.status === "pending").length} post-it`],
+      ["Salle commune", "commune", "#caa576", `Brief : ${briefItems().length} points · stand-up`],
+      ["Hall clients", "hall", "#adbac7", `${S.opps.length} opportunités · ${S.opps.filter((o) => o.late).length} en retard · ${S.signals.length} à la porte`],
+      ["Chambre de Charles", "chambre-charles", PEOPLE.charles.shirt, shownShort("charles")],
+      ["Chambre de Pierre", "chambre-pierre", PEOPLE.pierre.shirt, shownShort("pierre")],
+    ];
+    body.innerHTML = `<p class="sect">Le QG</p>${roomsList.map(([n, id, c, s]) => `<button type="button" class="nav-room" data-room="${id}"><span class="ic" style="background:${c}"></span><span class="grow"><b>${esc(n)}</b><div class="s">${esc(s)}</div></span></button>`).join("")}
+      <p class="sect">Salles projets</p>${Object.entries(PROJECTS).map(([id, p]) => { const ts = S.tasks.filter((t) => t.project === id); const d = ts.filter((t) => t.status === "done").length; const bl = ts.filter((t) => t.status === "blocked").length; return `<button type="button" class="nav-room" data-room="${id}"><span class="ic" style="background:${p.floor[1]}"></span><span class="grow"><b>${esc(p.name)}</b><div class="s">${esc(p.client)} · ${d}/${ts.length} tâches finies${bl ? ` · ${bl} bloquée` : ""}</div></span></button>`; }).join("")}`;
+    bindRooms(body);
+  } else if (kind === "hand") {
+    title.textContent = "Ma main";
+    const hand = tasksOf(ME, ["todo"]);
+    body.innerHTML = `<p class="small muted">Les tâches qui t'attendent. Pose-en une sur ton bureau (${deskOf(ME).length}/3) ou passe-la à un associé.</p><div class="rows">${hand.map((t) => taskRow(t, B("Poser sur mon bureau", "place", { id: t.id }, "main") + B("Passer à…", "compose", { id: t.id }))).join("") || '<p class="muted">Ta main est vide.</p>'}</div>`;
+    bindActions(body);
+  } else if (kind === "compose") {
+    title.textContent = "Déposer un post-it";
+    const mine = tasksOf(ME, ["todo", "doing"]);
+    const tid = args.id || (mine[0] && mine[0].id);
+    const to = args.to || (args.id ? (taskById(args.id).project === "p1" ? "pierre" : "charles") : "pierre");
+    body.innerHTML = `<label class="field">Tâche<select class="inp" id="cTask">${mine.map((t) => `<option value="${t.id}"${t.id === tid ? " selected" : ""}>${esc(t.title)}</option>`).join("")}</select></label>
+      <label class="field">Pour<select class="inp" id="cTo">${Object.keys(PEOPLE).filter((w) => w !== ME).map((w) => `<option value="${w}"${w === to ? " selected" : ""}>${PEOPLE[w].name} · ${S.load[w]} % · ${shownShort(w)}</option>`).join("")}</select></label>
+      <label class="field">Un mot (facultatif)<textarea class="note" id="cNote" maxlength="200" placeholder="Pourquoi lui, pour quand, ce qui est déjà fait…"></textarea></label>
+      <div class="actions"><button type="button" class="btn main" id="cSend">Déposer le post-it</button></div>
+      <p class="small muted">La tâche ne change de main que si l'autre accepte. Personne n'est mis devant le fait accompli.</p>`;
+    document.getElementById("cSend").addEventListener("click", () => ACT.handoff(document.getElementById("cTask").value, document.getElementById("cTo").value, document.getElementById("cNote").value.trim()));
+  } else if (kind === "wall") {
+    closeModal(); enterRoom("chambre-johan"); selected = { kind: "wall", who: ME }; renderInfo(); return;
+  } else if (kind === "quests") {
+    title.textContent = "Quêtes de la semaine"; body.innerHTML = renderQuests();
+  } else if (kind === "me") {
+    title.textContent = "Ma présence"; body.innerHTML = renderPresenceForm(); bindPresence(body);
+  }
+  document.getElementById("modal").hidden = false; document.getElementById("scrim").hidden = false;
+  document.getElementById("modalClose").focus();
+}
+function closeModal() { document.getElementById("modal").hidden = true; document.getElementById("scrim").hidden = true; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+function shownShort(w) { const p = S.presence[w]; if (!p.share) return "au calme"; return { dispo: "disponible", focus: "en focus", reunion: "en réunion" }[p.state]; }
+function bindPresence(root) {
+  const st = root.querySelector("#myState"), sh = root.querySelector("#myShare");
+  st && st.addEventListener("change", () => { S.presence[ME].state = st.value; log(`Johan passe « ${shownShort(ME)} ».`, ME); save(); refreshRoom(); renderAll(); });
+  sh && sh.addEventListener("change", () => { S.presence[ME].share = sh.checked; save(); refreshRoom(); renderAll(); });
+}
+
+/* --- Rendus annexes --- */
+function renderPresence() {
+  document.getElementById("presence").innerHTML = Object.keys(PEOPLE).map((w) => `<button type="button" class="chip" data-who="${w}"><span class="dot" style="background:${PEOPLE[w].shirt}">${PEOPLE[w].name[0]}</span><b>${PEOPLE[w].name}</b>${shownShort(w)}</button>`).join("");
+  document.querySelectorAll("#presence .chip").forEach((c) => c.addEventListener("click", () => { enterRoom("chambre-" + c.dataset.who); selected = { kind: "lamp", who: c.dataset.who }; renderInfo(); }));
+  document.getElementById("handCount").textContent = tasksOf(ME, ["todo"]).length;
+  const pc = S.handoffs.filter((h) => h.to === ME && h.status === "pending").length;
+  const pcEl = document.getElementById("postitCount"); pcEl.textContent = pc; pcEl.hidden = !pc;
+}
+function renderObjects() {
+  const box = document.getElementById("objects");
+  const seen = new Set();
+  const refs = [];
+  (room.wall_items || []).concat(room.items).forEach((it) => { if (it.ref) refs.push(it.ref); });
+  room.avatars.forEach((a) => refs.push(a.ref || { kind: "person", who: a.who }));
+  box.innerHTML = refs.filter((r) => { const k = JSON.stringify(r); if (seen.has(k)) return false; seen.add(k); return true; }).map((r) => {
+    let l = labelFor(r);
+    if (r.kind === "opp") l = oppById(r.id).client + " · " + STAGES[oppById(r.id).stage];
+    if (r.kind === "signal") l = sigById(r.id).client + " sonne";
+    if (r.kind === "task") l = taskById(r.id).title;
+    if (r.kind === "person") l = PEOPLE[r.who].name;
+    if (r.kind === "door") l = "Porte : " + ({ commune: "salle commune", hall: "hall clients", nav: "navigateur", dehors: "dehors" })[r.to];
+    return `<button type="button" data-ref='${esc(JSON.stringify(r))}'>${esc(l)}</button>`;
+  }).join("");
+  box.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => select(JSON.parse(b.dataset.ref))));
+}
+function renderMissions() {
+  document.getElementById("missions").innerHTML = MISSIONS.map(([id, text]) => `<div class="mission ${S.missions[id] ? "ok" : ""}"><span class="box">${S.missions[id] ? "✓" : ""}</span><span>${esc(text)}</span></div>`).join("")
+    + `<p class="small muted">${Object.keys(S.missions).length}/${MISSIONS.length} · les réponses de Charles et Pierre sont simulées pour la démo.</p>`;
+}
+function renderFeed() {
+  const f = document.getElementById("feed");
+  f.innerHTML = S.feed.map((e) => `<div class="row"><span class="mini" style="background:${e.who ? PEOPLE[e.who].shirt : "#ffc933"}">${e.who ? PEOPLE[e.who].name[0] : "•"}</span><div class="grow">${esc(e.text)}</div></div>`).join("") || '<p class="muted small">Tout ce qui se passe dans le QG s\'écrit ici : rien ne se perd dans une conversation.</p>';
+}
+function renderAll() { renderPresence(); renderMissions(); renderFeed(); renderInfo(); }
+
+/* --- Chat / stand-up --- */
+document.getElementById("chat").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const kind = document.getElementById("chatKind").value, inp = document.getElementById("chatText");
+  const text = inp.value.trim();
+  if (!text) { inp.focus(); return; }
+  if (kind === "note") {
+    const r = selected;
+    const label = r && r.kind === "task" ? `la tâche « ${taskById(r.id).title} »` : r && r.kind === "opp" ? `${oppById(r.id).client} (${oppById(r.id).title})` : null;
+    if (!label) return toast("Choisis d'abord un objet", "Une note s'attache à une tâche ou à un client : clique-le dans une pièce, puis écris. Rien ne se perd dans un fil de discussion.");
+    say(ME, text);
+    log(`Note de Johan sur ${label} : ${text}`, ME);
+    const mentioned = Object.keys(PEOPLE).find((w) => w !== ME && text.toLowerCase().includes("@" + w));
+    if (mentioned) toast("Mention", `${PEOPLE[mentioned].name} est prévenu${S.presence[mentioned].state === "focus" ? " à la fin de son focus" : ""}.`);
+    inp.value = ""; save(); renderAll(); return;
+  }
+  say(ME, text);
+  {
+    S.standup = S.standup.filter((s) => !(s.who === ME && s.kind === kind)).concat([{ who: ME, kind, text }]);
+    log(`Stand-up de Johan (${kind === "bloque" ? "bloqué" : "aujourd'hui"}) : ${text}`, ME);
+    mission("standup");
+    if (kind === "bloque") {
+      S.help.push({ id: "help" + Date.now(), who: ME, text, status: "open" });
+      toast("Demande d'aide créée", "Ton « bloqué » apparaît dans la salle commune et sur le mur des autres.");
+      after(3500, () => { const h = S.help.find((x) => x.who === ME && x.status === "open" && x.text === text); if (h) { h.status = "taken"; h.by = "pierre"; say("pierre", "Je regarde ça après ma session de focus. (réponse simulée)"); log("Pierre prend ta demande d'aide.", "pierre"); } });
+    }
+  }
+  inp.value = ""; save(); refreshRoom(); renderAll();
+});
+
+document.getElementById("chatKind").addEventListener("change", (e) => {
+  const inp = document.getElementById("chatText");
+  if (inp.value.trim()) return;
+  const doing = deskOf(ME).filter((t) => t.status === "doing").map((t) => t.title);
+  const bl = deskOf(ME).find((t) => t.status === "blocked");
+  if (e.target.value === "aujourdhui") inp.value = doing.length ? `Je termine ${doing.join(" et ")}.` : "";
+  if (e.target.value === "bloque") inp.value = bl ? `${bl.title} : ${bl.reason || "j'ai besoin d'un avis"}.` : "";
+  if (e.target.value === "note") inp.placeholder = "Note sur la tâche ou le client sélectionné (@charles pour le prévenir)";
+  else inp.placeholder = "Dire quelque chose à l'équipe…";
+});
+
+/* --- Outils --- */
+document.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => openModal(b.dataset.open)));
+document.getElementById("modalClose").addEventListener("click", closeModal);
+document.getElementById("scrim").addEventListener("click", closeModal);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !document.getElementById("modal").hidden) closeModal(); });
+document.getElementById("resetDemo").addEventListener("click", () => {
+  S = freshState(); save(); enterRoom("chambre-johan"); renderAll();
+  document.getElementById("chatlog").innerHTML = "";
+  toast("Démo remise à zéro", "Tout est revenu à l'état de départ.");
+});
+
+/* --- Démarrage --- */
+window.addEventListener("resize", fit);
+enterRoom(currentRoomId);
+fit();
+renderAll();
+if (!S.feed.length) {
+  log("Pierre passe « en focus » : montage du clip jusqu'à 11 h 30.", "pierre");
+  log("Charles dépose un post-it sur ton mur : relire le deck Café Lumen.", "charles");
+}
+setTimeout(() => say("charles", "Johan, je t'ai laissé un post-it sur ton mur pour le deck Café Lumen."), 900);
+requestAnimationFrame(loop);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => layoutTags());
+</script>

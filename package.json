@@ -1,0 +1,13 @@
+{
+  "name": "every1ate-world",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Le QG Every1.ate : maquette interactive façon Habbo, compagnon de travail de l'agence.",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/parcours.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
+  }
+}
