@@ -11,7 +11,10 @@ Il sert à :
 - **suivre les projets** : une salle par projet, chaque tâche finie devient un meuble ;
 - **tenir le CRM** : les clients sont des visiteurs, une relance en retard vient sonner à la porte ;
 - **fluidifier la communication** : post-it rattachés aux tâches, stand-up pré-rempli, statut de focus ;
-- **se répartir le travail** : charge visible, cartons sans responsable, passations acceptées.
+- **se répartir le travail** : charge visible, cartons sans responsable, passations acceptées ;
+- **discuter comme sur Slack** : salons par pièce et par projet, messages directs, fils, réactions,
+  mentions, fichiers, recherche, rappels, messages programmés, commandes, huddles
+  (voir `docs/DISCUSSIONS.md`).
 
 Il est gratuit, sans IA, et sans classement entre associés.
 
@@ -29,24 +32,25 @@ Every1.ate OS (dépôt `every1ate-os`). L'intégration est prévue comme lot V1.
 | Chemin | Contenu |
 |---|---|
 | `maquette/index.html` | La maquette complète, en un seul fichier : moteur isométrique pixel art, pièces, fenêtres, missions de démo |
+| `docs/DISCUSSIONS.md` | Les fonctionnalités de Slack dans le QG : correspondance, ajouts, fonctionnement gratuit |
 | `docs/CONCEPT.md` | Le concept : pourquoi des chambres, les pièces, les mécaniques retenues, les garde-fous |
 | `docs/MECANIQUES.md` | La recherche des trois agents (finir / CRM / équipe) : toutes les mécaniques proposées et les erreurs à éviter |
 | `docs/INTEGRATION.md` | Le plan d'intégration dans Every1.ate OS : données existantes, ajouts minimaux, étapes |
 | `docs/HISTORIQUE.md` | Les décisions prises, dans l'ordre |
-| `tests/parcours.mjs` | Parcours automatisé des 10 missions de la maquette (Playwright) |
+| `tests/parcours.mjs` | Parcours automatisé des 14 missions de la maquette (Playwright) |
 
 ## Tester le parcours automatiquement
 
 ```bash
 npm install
-npm test            # parcourt les 10 missions, vérifie l'absence d'erreur et de débordement
+npm test            # parcourt les 14 missions, vérifie l'absence d'erreur et de débordement
 ```
 
 Si Chromium est déjà installé ailleurs : `CHROMIUM_PATH=/chemin/vers/chrome npm test`.
 
-## Essayer la maquette (5 minutes)
+## Essayer la maquette (8 minutes)
 
-Le cadre « À essayer » liste 10 missions qui se cochent toutes seules :
+Le cadre « À essayer » liste 14 missions qui se cochent toutes seules :
 
 1. poser une 4e tâche sur un bureau plein ;
 2. terminer une tâche ;
@@ -57,6 +61,10 @@ Le cadre « À essayer » liste 10 missions qui se cochent toutes seules :
 7. poster son stand-up ;
 8. reprendre une tâche à Charles, débordé ;
 9. prendre un carton sans responsable ;
-10. voir une tâche finie devenir un meuble.
+10. voir une tâche finie devenir un meuble ;
+11. répondre dans un fil de discussion ;
+12. transformer un message en tâche ;
+13. écrire à Pierre pendant son focus ;
+14. lancer un huddle.
 
 « Rejouer » remet tout à zéro. Les réponses de Charles et Pierre sont simulées.

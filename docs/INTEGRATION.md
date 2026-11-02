@@ -30,6 +30,8 @@ journal d'audit compris).
 | `User.presence` (statut, jusqu'à, partage oui/non) | Statut manuel et facultatif |
 | `TeamBadge` (clé, période) | Badges collectifs, sans associé |
 | `TaskComment.mentionIds` | Mentions rattachées aux tâches |
+| `Channel`, `ChannelMember`, `Message` (avec `parentId` pour les fils), `Reaction`, `MessagePin`, `SavedMessage`, `Reminder`, `ScheduledMessage`, `ChannelRead` | Discussions (voir `DISCUSSIONS.md`) |
+| Abonnement temps réel (Ably, offre gratuite) et notifications web | Messages instantanés sans interroger le serveur en boucle |
 
 ## Étapes proposées
 
@@ -41,7 +43,12 @@ journal d'audit compris).
    - relance depuis le hall ;
    - faire entrer un signal ;
    - stand-up.
-3. **Rituels** :
+3. **Discussions** :
+   - salons et messages directs, fils, réactions, mentions, non lus ;
+   - « Transformer en tâche », commandes ;
+   - temps réel, notifications sur téléphone ;
+   - huddles par lien Meet ou Jitsi.
+4. **Rituels** :
    - quêtes et badges d'équipe ;
    - grand ménage du vendredi ;
    - revue pipeline du lundi.
@@ -52,7 +59,9 @@ coûteuse).
 
 ## Ce qui est simulé dans la maquette
 
-- Les réponses de Charles et Pierre (acceptations, aides).
+- Les réponses de Charles et Pierre (acceptations, aides, messages, entrée dans un huddle).
+- Les fichiers joints (seuls le nom et la taille sont gardés, rien n'est envoyé).
+- Les rappels (8 secondes au lieu de 20 minutes).
 - Les montants et dates (données de démonstration fictives).
 - L'ouverture de la visio et du compte rendu (dans l'app : lien Meet de l'événement et
   « Nouveau compte rendu » prérempli).

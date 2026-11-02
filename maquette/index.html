@@ -41,7 +41,7 @@ button, input, select { font: inherit; }
 .chip b { font-weight: 500; }
 
 /* Scène */
-.main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 12px; align-items: start; }
+main.main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 12px; align-items: start; }
 .stage-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .stage { position: relative; width: 100%; background: radial-gradient(ellipse at 50% 40%, #1d3550, var(--night) 70%); border: 2px solid #2b4560; border-radius: 10px; overflow: hidden; touch-action: manipulation; }
 .stage canvas { display: block; image-rendering: pixelated; image-rendering: crisp-edges; margin: 0 auto; cursor: pointer; }
@@ -60,6 +60,7 @@ button, input, select { font: inherit; }
 .objects { display: flex; flex-wrap: wrap; gap: 6px; }
 .objects button { background: var(--night-2); color: #dbe6f1; border: 1px solid #2b4560; border-radius: 6px; padding: 4px 9px; font-size: 12.5px; cursor: pointer; min-height: 32px; }
 .objects button:hover { border-color: var(--coin); }
+.objects .room-chat { border-color: var(--coin); color: var(--coin); }
 
 /* Fenêtres façon Habbo */
 .side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
@@ -105,7 +106,7 @@ button, input, select { font: inherit; }
 .mission.ok span { color: var(--muted); text-decoration: line-through; }
 .feed { max-height: 220px; overflow: auto; display: flex; flex-direction: column; gap: 6px; }
 .feed .row { padding: 5px 7px; font-size: 12.5px; }
-textarea.note { width: 100%; min-height: 64px; border: 2px solid #0b1522; border-radius: 6px; padding: 6px; font: inherit; resize: vertical; }
+textarea.note { width: 100%; min-height: 64px; background: #fff; color: var(--ink); border: 2px solid #0b1522; border-radius: 6px; padding: 6px; font: inherit; resize: vertical; }
 label.field { display: flex; flex-direction: column; gap: 4px; font-weight: 600; font-size: 13px; }
 select.inp, input.inp { border: 2px solid #0b1522; border-radius: 6px; padding: 5px 8px; min-height: 36px; background: #fff; color: var(--ink); }
 
@@ -135,8 +136,94 @@ select.inp, input.inp { border: 2px solid #0b1522; border-radius: 6px; padding: 
 .nav-room .s { font-size: 12px; color: var(--muted); }
 .sect { font-family: var(--display); font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
 
+/* Discussions (Slack) */
+.sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.tool .count.soft { background: #3d5876; }
+.slack { position: fixed; z-index: 28; right: max(12px, env(safe-area-inset-right, 0px)); top: calc(12px + env(safe-area-inset-top, 0px)); bottom: calc(118px + env(safe-area-inset-bottom, 0px)); width: min(940px, calc(100vw - 24px)); display: flex; flex-direction: column; }
+.slack > h2 { flex: none; }
+.sl-search { flex: 1; min-width: 0; max-width: 340px; margin-left: 8px; border: 2px solid #0b1522; border-radius: 6px; padding: 3px 8px; font: 13px var(--body); background: #fff; color: var(--ink); }
+.slack-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 228px minmax(0, 1fr); }
+.slack-side { background: var(--night-2); overflow: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+.sl-item { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; background: none; border: 0; color: #b9c9da; padding: 5px 8px; border-radius: 5px; cursor: pointer; min-height: 34px; font: 14px var(--body); }
+.sl-item:hover { background: #22405f; color: #fff; }
+.sl-item.on { background: var(--chrome); color: #fff; }
+.sl-item.unread { color: #fff; font-weight: 700; }
+.sl-item.add { color: #8fa6bd; }
+.sl-item .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sl-item .hash { color: #8fa6bd; width: 12px; flex: none; }
+.sl-item .st { font-size: 11px; color: #8fa6bd; font-weight: 400; white-space: nowrap; }
+.sl-item .badge { margin-left: auto; background: var(--alert); color: #fff; border-radius: 999px; font-size: 11px; font-weight: 700; padding: 0 7px; line-height: 18px; }
+.sl-item .badge.soft { background: #3d5876; }
+.sl-item .live { font-size: 10px; background: var(--go); color: #fff; border-radius: 999px; padding: 0 6px; }
+.sl-sect { font-family: var(--display); font-size: 12px; color: #8fa6bd; text-transform: uppercase; letter-spacing: .06em; margin: 10px 8px 2px; }
+.pres { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.slack-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--panel); color: var(--ink); }
+.sl-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border-bottom: 1px solid var(--panel-2); background: #fff; }
+.sl-head .grow { flex: 1; min-width: 160px; }
+.sl-head .s { font-size: 12px; color: var(--muted); }
+.sl-back { display: none; }
+.sl-list { flex: 1; min-height: 0; overflow: auto; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.msg { position: relative; display: flex; gap: 8px; padding: 6px 34px 6px 6px; border-radius: 6px; }
+.msg:hover, .msg.open { background: #fff; }
+.msg.new { box-shadow: inset 3px 0 0 var(--alert); }
+.msg.eph { background: #fff7d6; }
+.msg.flash { background: #fff1a8; }
+.msg .av { width: 30px; height: 30px; border-radius: 6px; flex: none; display: grid; place-items: center; color: #fff; font-family: var(--display); font-size: 14px; }
+.msg .av.bot { color: var(--ink); font-size: 11px; }
+.msg .mb { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.msg .meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-size: 12px; }
+.msg .meta b { font-size: 14px; }
+.msg .txt { white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg .txt code { background: #e9edf1; border-radius: 3px; padding: 0 3px; font-size: 13px; }
+.msg .more { position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; border: 1px solid var(--panel-2); background: #fff; border-radius: 6px; cursor: pointer; font-weight: 700; color: var(--ink); }
+.mention { background: #e5eefb; color: #1d5d9b; border-radius: 3px; padding: 0 2px; font-weight: 600; }
+.mention.me { background: #fff1a8; color: #6a4f00; }
+.about { font-size: 12px; background: #eef1f4; border-radius: 4px; padding: 0 5px; color: var(--muted); }
+.flag { font-size: 11px; border: 1px solid var(--panel-2); border-radius: 999px; padding: 0 6px; color: var(--muted); background: #fff; }
+.flag.link, .linkbtn { cursor: pointer; text-decoration: underline; background: none; border: 0; padding: 0; color: var(--chrome); font: inherit; }
+.files, .reacts, .sl-files { display: flex; flex-wrap: wrap; gap: 4px; }
+.file { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--panel-2); background: #fff; border-radius: 6px; padding: 3px 8px; font-size: 12.5px; }
+.react { border: 1px solid var(--panel-2); background: #fff; border-radius: 999px; padding: 1px 8px; font-size: 12.5px; cursor: pointer; min-height: 26px; color: var(--ink); }
+.react.on { border-color: #8db7e2; background: #eaf3fc; }
+.thr { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; background: none; border: 1px solid transparent; border-radius: 6px; padding: 2px 6px; cursor: pointer; font-size: 12.5px; color: var(--chrome); }
+.thr:hover { border-color: var(--panel-2); background: #fff; }
+.thr.new b { color: var(--alert); }
+.mini.sm { width: 18px; height: 18px; font-size: 10px; }
+.menu { display: flex; flex-direction: column; gap: 6px; background: #f4f6f8; border: 1px solid var(--panel-2); border-radius: 6px; padding: 6px; }
+.menu .quick { display: flex; flex-wrap: wrap; gap: 4px; }
+.menu .quick button { border: 1px solid var(--panel-2); background: #fff; border-radius: 6px; min-width: 36px; min-height: 34px; cursor: pointer; font-size: 16px; }
+.taskform, .confirm, .form, .edit { display: flex; flex-direction: column; gap: 8px; background: #fff; border: 1px solid var(--panel-2); border-radius: 6px; padding: 8px; }
+.confirm { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+.members { border: 1px solid var(--panel-2); border-radius: 6px; display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 6px 10px; }
+.huddle { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 10px; background: #e8f7ed; border-bottom: 1px solid #8fd0a4; font-size: 13px; }
+.huddle .actions { margin-left: auto; }
+.pins { display: flex; flex-direction: column; gap: 4px; padding: 6px 10px; background: #fffbe9; border-bottom: 1px solid #ffd56b; }
+.pin { text-align: left; background: none; border: 0; cursor: pointer; font: 13px var(--body); color: var(--ink); padding: 2px 0; }
+.sep { margin: 6px 0; border-top: 1px solid var(--panel-2); padding-top: 6px; }
+.typing { min-height: 18px; padding: 0 12px; }
+.act-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: #fff; border: 1px solid var(--panel-2); border-radius: 6px; padding: 8px; }
+.act-row .grow { flex: 1; min-width: 180px; }
+.act-row .s { display: block; font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.sl-compose { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--panel-2); background: #fff; }
+.sl-compose textarea { min-height: 52px; max-height: 160px; }
+.sl-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.sl-tools .hint { flex: 1; min-width: 140px; }
+.also { display: flex; gap: 6px; align-items: center; }
+.sched { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sl-suggest { position: absolute; left: 10px; right: 10px; bottom: 100%; background: #fff; border: 2px solid #0b1522; border-radius: 6px; box-shadow: 0 3px 0 rgba(0,0,0,.25); display: flex; flex-direction: column; max-height: 220px; overflow: auto; }
+.sl-suggest button { text-align: left; background: none; border: 0; border-bottom: 1px solid var(--panel-2); padding: 6px 8px; cursor: pointer; font: 13px var(--body); color: var(--ink); }
+.sl-suggest button:hover { background: #eaf3fc; }
+@media (max-width: 720px) {
+  .slack { left: max(8px, env(safe-area-inset-left, 0px)); right: max(8px, env(safe-area-inset-right, 0px)); width: auto; top: calc(8px + env(safe-area-inset-top, 0px)); }
+  .slack-body { grid-template-columns: minmax(0, 1fr); }
+  .slack[data-pane="main"] .slack-side, .slack[data-pane="side"] .slack-main { display: none; }
+  .sl-back { display: inline-block; }
+  .sl-search { max-width: none; }
+  .sl-tools .hint { display: none; }
+}
 @media (max-width: 900px) {
-  .main { grid-template-columns: minmax(0, 1fr); }
+  main.main { grid-template-columns: minmax(0, 1fr); }
   .demo-tag { margin-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .bubble, .toast { animation: none; } }
@@ -167,7 +254,7 @@ select.inp, input.inp { border: 2px solid #0b1522; border-radius: 6px; padding: 
         <div class="body" id="infoBody"></div>
       </section>
       <section class="win">
-        <h2>À essayer (5 min)</h2>
+        <h2>À essayer (8 min)</h2>
         <div class="body" id="missions"></div>
       </section>
       <section class="win">
@@ -182,7 +269,7 @@ select.inp, input.inp { border: 2px solid #0b1522; border-radius: 6px; padding: 
   <div class="dock-in">
     <form class="chat" id="chat" autocomplete="off">
       <select class="inp" id="chatKind" aria-label="Type de message">
-        <option value="note">Note</option>
+        <option value="room">Salon de la pièce</option>
         <option value="aujourdhui">Aujourd'hui</option>
         <option value="bloque">Bloqué</option>
       </select>
@@ -191,6 +278,7 @@ select.inp, input.inp { border: 2px solid #0b1522; border-radius: 6px; padding: 
     </form>
     <nav class="tools" aria-label="Outils">
       <button class="tool" type="button" data-open="nav"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="3" y="0" width="3" height="1" fill="#fff"/><rect x="1" y="1" width="2" height="1" fill="#fff"/><rect x="6" y="1" width="2" height="1" fill="#fff"/><rect x="0" y="3" width="1" height="3" fill="#fff"/><rect x="8" y="3" width="1" height="3" fill="#fff"/><rect x="1" y="7" width="2" height="1" fill="#fff"/><rect x="6" y="7" width="2" height="1" fill="#fff"/><rect x="3" y="8" width="3" height="1" fill="#fff"/><rect x="4" y="2" width="1" height="3" fill="#ffc933"/><rect x="4" y="5" width="1" height="2" fill="#d9402f"/></svg>Navigateur</button>
+      <button class="tool" type="button" id="openSlack" aria-controls="slack"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="0" y="1" width="9" height="5" fill="#fff"/><rect x="2" y="6" width="2" height="1" fill="#fff"/><rect x="1" y="7" width="1" height="1" fill="#fff"/><rect x="2" y="3" width="1" height="1" fill="#1e5a8c"/><rect x="4" y="3" width="1" height="1" fill="#1e5a8c"/><rect x="6" y="3" width="1" height="1" fill="#1e5a8c"/></svg>Discussions <span class="count" id="slackCount" hidden>0</span></button>
       <button class="tool" type="button" data-open="hand"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="1" y="2" width="7" height="6" fill="#c98f4a"/><rect x="1" y="2" width="7" height="1" fill="#e7b46d"/><rect x="3" y="4" width="3" height="1" fill="#7a4f22"/></svg>Ma main <span class="count" id="handCount">0</span></button>
       <button class="tool" type="button" data-open="wall"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="1" y="1" width="7" height="7" fill="#ffe36b"/><rect x="2" y="3" width="5" height="1" fill="#8a6d00"/><rect x="2" y="5" width="3" height="1" fill="#8a6d00"/></svg>Post-it <span class="count" id="postitCount">0</span></button>
       <button class="tool" type="button" data-open="quests"><svg viewBox="0 0 9 9" aria-hidden="true"><rect x="2" y="0" width="5" height="1" fill="#ffc933"/><rect x="1" y="1" width="7" height="3" fill="#ffc933"/><rect x="3" y="4" width="3" height="2" fill="#ffc933"/><rect x="4" y="6" width="1" height="1" fill="#ffc933"/><rect x="2" y="7" width="5" height="2" fill="#c98f4a"/></svg>Quêtes</button>
@@ -204,6 +292,10 @@ select.inp, input.inp { border: 2px solid #0b1522; border-radius: 6px; padding: 
 <section class="win modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <h2><span id="modalTitle">Fenêtre</span><button class="x" type="button" id="modalClose" aria-label="Fermer">x</button></h2>
   <div class="body" id="modalBody"></div>
+</section>
+<section class="win slack" id="slack" hidden role="dialog" aria-labelledby="slackTitle" data-pane="main">
+  <h2><span id="slackTitle">Discussions</span><input type="search" id="slSearch" class="sl-search" placeholder="Rechercher messages et fichiers" aria-label="Rechercher dans les messages et les fichiers"><button class="x" type="button" id="slackClose" aria-label="Fermer les discussions">x</button></h2>
+  <div class="slack-body"><nav class="slack-side" id="slackSide" aria-label="Salons et messages directs"></nav><div class="slack-main" id="slackMain"></div></div>
 </section>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
@@ -230,7 +322,7 @@ function freshState() {
     presence: {
       johan:   { state: "dispo", share: true },
       charles: { state: "reunion", until: "15:30", share: true },
-      pierre:  { state: "focus", what: "Montage · Clip « Nuit claire »", until: "11:30", share: true },
+      pierre:  { state: "focus", what: "Montage · Clip « Nuit claire »", until: "11:30", share: true, custom: "Montage du clip" },
     },
     load: { johan: 82, charles: 104, pierre: 71 },
     tasks: [
@@ -287,14 +379,15 @@ function freshState() {
       { who: "charles", kind: "bloque", text: "Shooting : j'attends la date de livraison des produits." },
     ],
     feed: [],
+    chat: freshChat(),
     missions: {},
     objective: 52,
   };
 }
 
 let S = load() || freshState();
-function save() { try { localStorage.setItem("qg-demo-v1", JSON.stringify(S)); } catch (e) { /* stockage indisponible : la démo reste en mémoire */ } }
-function load() { try { const raw = localStorage.getItem("qg-demo-v1"); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
+function save() { try { localStorage.setItem("qg-demo-v2", JSON.stringify(S)); } catch (e) { /* stockage indisponible : la démo reste en mémoire */ } }
+function load() { try { const raw = localStorage.getItem("qg-demo-v2"); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
 
 const MISSIONS = [
   ["full", "Dans ta chambre, ouvre « Ma main » et pose « Déclinaisons print » sur ton bureau."],
@@ -307,6 +400,10 @@ const MISSIONS = [
   ["rebalance", "Chambre de Charles : sa pile déborde, reprends-lui une tâche."],
   ["claim", "Salle commune : prends un carton sans responsable."],
   ["build", "Salle projet : regarde une tâche terminée devenir un meuble."],
+  ["thread", "Discussions : réponds dans le fil de Charles sur #général."],
+  ["msgtask", "Discussions : transforme le message de Charles (#campagne-printemps) en tâche."],
+  ["dnd", "Écris à @pierre : il est en focus, il ne sera pas dérangé."],
+  ["huddle", "Lance un huddle depuis un salon (bouton ou /huddle)."],
 ];
 
 /* ========================================================================
@@ -407,7 +504,7 @@ function drawAvatar(a) {
   rect(sx - 6, head - 1, 12, 4, p.hair); rect(sx - 6, head + 2, 2, 4, p.hair);
   rect(sx - 3, head + 5, 1, 2, "#1b1b24"); rect(sx + 2, head + 5, 1, 2, "#1b1b24");
   rect(sx - 1, head + 9, 3, 1, shade(p.skin, -0.3));
-  if (a.headset) { rect(sx - 6, head + 3, 1, 5, "#222"); rect(sx + 5, head + 3, 1, 5, "#222"); rect(sx - 5, head - 2, 10, 1, "#222"); }
+  if (a.headset || (a.who === ME && S.chat && S.chat.huddle && S.chat.huddle.people.includes(ME))) { rect(sx - 6, head + 3, 1, 5, "#222"); rect(sx + 5, head + 3, 1, 5, "#222"); rect(sx - 5, head - 2, 10, 1, "#222"); }
   // icône au-dessus de la tête
   if (a.icon) drawIcon(sx, head - 6, a.icon);
   return [sx - 9, head - 16, sx + 9, sy0 + 4];
@@ -683,6 +780,16 @@ function buildRooms() {
       avatars: [],
       entry: [0, rows - 1],
     };
+  }
+  const h = S.chat && S.chat.huddle;
+  const hc = h && chById(h.ch);
+  const hr = hc && !hc.with && ROOMS[hc.room];
+  if (hr) {
+    const spots = hr.kind === "commune" ? [[2, 3], [5, 4]] : hr.kind === "hall" ? [[1, 3], [2, 3]] : [[1, hr.size[1] - 1], [1, hr.size[1] - 2]];
+    h.people.filter((w) => w !== ME).forEach((w, i) => {
+      hr.avatars = hr.avatars.filter((a) => a.who !== w);
+      hr.avatars.push({ id: w, who: w, x: spots[i % 2][0], y: spots[i % 2][1], headset: true });
+    });
   }
 }
 const VISITORS = [
@@ -972,6 +1079,7 @@ const ACT = {
     const t = taskById(id);
     t.status = "done"; t.justDone = true; t.stale = 0; S.doneThisWeek++; if (t.owner) S.load[t.owner] = Math.max(0, S.load[t.owner] - 6);
     log(`${PEOPLE[t.owner].name} termine « ${t.title} ».`, t.owner);
+    post(t.project, BOT, `Terminé par ${PEOPLE[t.owner].name} : « ${t.title} ».`);
     toast("Tâche terminée", `« ${t.title} » rejoint la salle projet sous forme de meuble. Quête « Finir 8 tâches » : ${Math.min(8, S.doneThisWeek)}/8.`);
     say(t.owner, `C'est fait : ${t.title}.`);
     if (currentRoomId === t.project) spawn(2, 2, 30, "confetti");
@@ -986,6 +1094,7 @@ const ACT = {
     if (S.help.some((h) => h.task === id && h.status === "open")) return toast("Déjà demandé", "Ta demande est affichée dans la salle commune.");
     S.help.push({ id: "help" + Date.now(), who: ME, task: id, text: `Bloqué sur « ${t.title} » : ${t.reason || "besoin d'un avis"}`, status: "open" });
     log(`Johan demande un coup de main sur « ${t.title} ».`, ME);
+    post("general", BOT, `Johan demande un coup de main : « ${t.title} » (${t.reason || "bloquée"}).`);
     say(ME, `Besoin d'un coup de main : ${t.title}.`);
     save(); refreshRoom(); renderAll();
     after(3200, () => {
@@ -1000,6 +1109,7 @@ const ACT = {
     const t = taskById(id);
     S.handoffs.push({ id: "h" + Date.now(), from: ME, to, task: id, note: note || `Tu peux prendre « ${t.title} » ?`, status: "pending" });
     log(`Johan propose « ${t.title} » à ${PEOPLE[to].name} (post-it).`, ME);
+    post("dm-" + to, ME, `Post-it : peux-tu prendre « ${t.title} » ? ${note || ""}`.trim());
     toast("Post-it déposé", `Sur le mur de ${PEOPLE[to].name}. ${S.presence[to].state === "focus" ? "Il est en focus : pas de notification, il le verra à la fin de sa session." : "Il reçoit une notification."}`);
     if (to === "pierre") mission("handoff");
     closeModal(); save(); refreshRoom(); renderAll();
@@ -1037,6 +1147,7 @@ const ACT = {
     const o = oppById(id);
     o.late = false; o.nextDate = "28 oct."; o.lastContact = "aujourd'hui";
     log(`Relance notée : ${o.client} (${o.title}). Prochaine action le 28 oct.`, ME);
+    post("clients", BOT, `Relance notée par Johan : ${o.client} (${o.title}). Prochaine action le 28 oct.`);
     toast("Relance notée", `${o.contact} (${o.client}) : échange ajouté à l'historique, prochaine relance le 28 oct.`);
     mission("relance"); checkQuests(); save(); refreshRoom(); renderAll();
   },
@@ -1052,6 +1163,7 @@ const ACT = {
     S.opps = S.opps.filter((x) => x !== o);
     toast("Signé !", `${o.title} (${o.client}, ${money(o.amount)}) : le projet est créé avec son modèle, ${PEOPLE[o.owner].name} en est responsable.`);
     log(`Gagné : ${o.title} pour ${o.client}. Projet créé.`, o.owner);
+    post("clients", BOT, `Signé : ${o.title} (${o.client}, ${money(o.amount)}). Le projet est créé.`);
     say(o.owner, `On a signé ${o.client} !`);
     spawn(3, 3, 40, "confetti");
     save(); refreshRoom(); renderAll(); selected = null; renderInfo();
@@ -1080,6 +1192,7 @@ const ACT = {
     const titles = { "Renouvellement": "Renouvellement social ads", "Suite possible": "Nouvelle campagne", "Client dormant": "Reprise de contact" };
     S.opps.push({ id: "o" + Date.now(), title: titles[s.kind] || "Nouvelle opportunité", client: s.client, contact: "—", owner: ME, amount: s.kind === "Renouvellement" ? 14400 : 15000, stage: 0, next: "Premier appel", nextDate: "23 oct.", look: s.look });
     log(`${s.client} entre dans le hall : opportunité créée (${s.kind.toLowerCase()}).`, ME);
+    post("clients", BOT, `${s.client} entre dans le pipeline (${s.kind.toLowerCase()}) · responsable : Johan.`);
     toast("Opportunité créée", `${s.client} attend à « À contacter ». Prochaine action : premier appel le 23 oct.`);
     mission("signal"); save(); refreshRoom(); renderAll();
   },
@@ -1138,7 +1251,7 @@ function renderInfo() {
     const p = S.presence[r.who];
     const lbl = { dispo: ["done", "Disponible"], focus: ["blocked", "En focus · ne pas déranger"], reunion: ["meet", "En réunion"], calme: ["todo", "Au calme"] }[p.share ? p.state : "calme"];
     html = `<h3>${esc(PEOPLE[r.who].name)}</h3><div><span class="pill ${lbl[0]}">${lbl[1]}</span></div><p class="small">${esc(shownText(r.who))}</p>`
-      + (r.who === ME ? renderPresenceForm() : `<div class="actions">${B("Laisser un post-it", "composeTo", { who: r.who }, "main")}</div><p class="small muted">Un post-it est rattaché à une tâche : pas de message perdu dans une conversation.</p>`);
+      + (r.who === ME ? renderPresenceForm() : `<div class="actions">${B("Laisser un post-it", "composeTo", { who: r.who }, "main")}${B("Message direct", "dm", { who: r.who })}</div><p class="small muted">Un post-it est rattaché à une tâche : pas de message perdu dans une conversation.</p>`);
   } else if (r.kind === "pile") {
     const l = S.load[r.who];
     html = `<h3>Charge de ${esc(PEOPLE[r.who].name)}</h3><div class="bar ${l > 100 ? "hot" : l > 85 ? "mid" : ""}"><i style="width:${Math.min(100, l)}%"></i></div><p><b>${l} %</b> de sa capacité cette semaine (${PEOPLE[r.who].capacity} h).</p>`;
@@ -1233,6 +1346,7 @@ function renderDesk(who) {
 function renderPresenceForm() {
   const p = S.presence[ME];
   return `<label class="field">Mon statut<select class="inp" id="myState">${[["dispo", "Disponible"], ["focus", "En focus (ne pas déranger)"], ["reunion", "En réunion"]].map(([v, l]) => `<option value="${v}"${p.state === v ? " selected" : ""}>${l}</option>`).join("")}</select></label>
+  <label class="field">Statut personnalisé<input class="inp" id="myCustom" maxlength="60" placeholder="ex. En tournage à Pantin" value="${esc(p.custom || "")}"></label>
   <label class="small" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="myShare"${p.share ? " checked" : ""}> Montrer mon statut et ma tâche en cours aux associés</label>
   <p class="small muted">Jamais d'heures, d'historique ou de suivi d'écran : seulement ton statut, si tu le partages.</p>`;
 }
@@ -1251,6 +1365,7 @@ function bindActions(root) {
   root.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", () => {
     const a = b.dataset.act, args = JSON.parse(b.dataset.args || "{}");
     if (a === "openHand") return openModal("hand");
+    if (a === "dm") return openSlack("dm-" + args.who);
     if (a === "compose") return openModal("compose", args);
     if (a === "composeTo") return openModal("compose", { to: args.who });
     if (a === "block") { const t = taskById(args.id); t.status = "blocked"; t.reason = "À préciser dans le stand-up"; log(`« ${t.title} » est bloquée.`, ME); save(); refreshRoom(); renderAll(); return; }
@@ -1312,6 +1427,8 @@ function bindPresence(root) {
   const st = root.querySelector("#myState"), sh = root.querySelector("#myShare");
   st && st.addEventListener("change", () => { S.presence[ME].state = st.value; log(`Johan passe « ${shownShort(ME)} ».`, ME); save(); refreshRoom(); renderAll(); });
   sh && sh.addEventListener("change", () => { S.presence[ME].share = sh.checked; save(); refreshRoom(); renderAll(); });
+  const cu = root.querySelector("#myCustom");
+  cu && cu.addEventListener("change", () => { S.presence[ME].custom = cu.value.trim(); save(); renderAll(); });
 }
 
 /* --- Rendus annexes --- */
@@ -1338,6 +1455,13 @@ function renderObjects() {
     return `<button type="button" data-ref='${esc(JSON.stringify(r))}'>${esc(l)}</button>`;
   }).join("");
   box.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => select(JSON.parse(b.dataset.ref))));
+  const chId = roomChannel(room.id);
+  const link = document.createElement("button");
+  link.type = "button";
+  link.className = "room-chat";
+  link.textContent = "Discussion : " + chLabel(chId);
+  link.addEventListener("click", () => openSlack(chId));
+  box.appendChild(link);
 }
 function renderMissions() {
   document.getElementById("missions").innerHTML = MISSIONS.map(([id, text]) => `<div class="mission ${S.missions[id] ? "ok" : ""}"><span class="box">${S.missions[id] ? "✓" : ""}</span><span>${esc(text)}</span></div>`).join("")
@@ -1347,61 +1471,715 @@ function renderFeed() {
   const f = document.getElementById("feed");
   f.innerHTML = S.feed.map((e) => `<div class="row"><span class="mini" style="background:${e.who ? PEOPLE[e.who].shirt : "#ffc933"}">${e.who ? PEOPLE[e.who].name[0] : "•"}</span><div class="grow">${esc(e.text)}</div></div>`).join("") || '<p class="muted small">Tout ce qui se passe dans le QG s\'écrit ici : rien ne se perd dans une conversation.</p>';
 }
-function renderAll() { renderPresence(); renderMissions(); renderFeed(); renderInfo(); }
+function renderAll() { renderPresence(); renderMissions(); renderFeed(); renderInfo(); renderChatBadges(); updateChatPlaceholder(); }
+function updateChatPlaceholder() {
+  const k = document.getElementById("chatKind").value, inp = document.getElementById("chatText");
+  if (!room || !S.chat) return;
+  const c = chById(roomChannel(room.id));
+  const where = c.with ? (c.with === ME ? "Note pour toi" : `Message à ${PEOPLE[c.with].name}`) : `Message dans #${c.name}`;
+  inp.placeholder = k === "room" ? `${where} (/ pour les commandes)` : k === "bloque" ? "Ce qui te bloque…" : "Ce que tu fais aujourd'hui…";
+}
 
-/* --- Chat / stand-up --- */
+/* --- Barre du bas : salon de la pièce (bulles Habbo) et stand-up --- */
 document.getElementById("chat").addEventListener("submit", (e) => {
   e.preventDefault();
   const kind = document.getElementById("chatKind").value, inp = document.getElementById("chatText");
   const text = inp.value.trim();
   if (!text) { inp.focus(); return; }
-  if (kind === "note") {
+  inp.value = "";
+  if (kind === "room") {
+    const ch = roomChannel(currentRoomId);
+    if (text.startsWith("/")) { runCommand(text, ch, null); return renderAll(); }
     const r = selected;
-    const label = r && r.kind === "task" ? `la tâche « ${taskById(r.id).title} »` : r && r.kind === "opp" ? `${oppById(r.id).client} (${oppById(r.id).title})` : null;
-    if (!label) return toast("Choisis d'abord un objet", "Une note s'attache à une tâche ou à un client : clique-le dans une pièce, puis écris. Rien ne se perd dans un fil de discussion.");
-    say(ME, text);
-    log(`Note de Johan sur ${label} : ${text}`, ME);
-    const mentioned = Object.keys(PEOPLE).find((w) => w !== ME && text.toLowerCase().includes("@" + w));
-    if (mentioned) toast("Mention", `${PEOPLE[mentioned].name} est prévenu${S.presence[mentioned].state === "focus" ? " à la fin de son focus" : ""}.`);
-    inp.value = ""; save(); renderAll(); return;
+    const about = r && r.kind === "task" && taskById(r.id) ? `« ${taskById(r.id).title} »` : r && r.kind === "opp" && oppById(r.id) ? oppById(r.id).client : null;
+    post(ch, ME, text, { about });
+    simulateReply(ch, text, null);
+    return renderAll();
   }
-  say(ME, text);
-  {
-    S.standup = S.standup.filter((s) => !(s.who === ME && s.kind === kind)).concat([{ who: ME, kind, text }]);
-    log(`Stand-up de Johan (${kind === "bloque" ? "bloqué" : "aujourd'hui"}) : ${text}`, ME);
-    mission("standup");
-    if (kind === "bloque") {
-      S.help.push({ id: "help" + Date.now(), who: ME, text, status: "open" });
-      toast("Demande d'aide créée", "Ton « bloqué » apparaît dans la salle commune et sur le mur des autres.");
-      after(3500, () => { const h = S.help.find((x) => x.who === ME && x.status === "open" && x.text === text); if (h) { h.status = "taken"; h.by = "pierre"; say("pierre", "Je regarde ça après ma session de focus. (réponse simulée)"); log("Pierre prend ta demande d'aide.", "pierre"); } });
-    }
-  }
-  inp.value = ""; save(); refreshRoom(); renderAll();
+  postStandup(kind, text);
+  save(); refreshRoom(); renderAll();
 });
 
 document.getElementById("chatKind").addEventListener("change", (e) => {
   const inp = document.getElementById("chatText");
+  updateChatPlaceholder();
   if (inp.value.trim()) return;
   const doing = deskOf(ME).filter((t) => t.status === "doing").map((t) => t.title);
   const bl = deskOf(ME).find((t) => t.status === "blocked");
   if (e.target.value === "aujourdhui") inp.value = doing.length ? `Je termine ${doing.join(" et ")}.` : "";
   if (e.target.value === "bloque") inp.value = bl ? `${bl.title} : ${bl.reason || "j'ai besoin d'un avis"}.` : "";
-  if (e.target.value === "note") inp.placeholder = "Note sur la tâche ou le client sélectionné (@charles pour le prévenir)";
-  else inp.placeholder = "Dire quelque chose à l'équipe…";
 });
+
+/* ========================================================================
+   Discussions (les fonctionnalités de Slack, dans le QG) : salons rattachés
+   aux pièces et aux projets, messages directs, notes perso, fils, réactions,
+   mentions, fichiers, recherche, épinglés, « Plus tard », rappels, messages
+   programmés, commandes, huddles, statut et ne pas déranger.
+   ======================================================================== */
+function freshChat() {
+  const m = (id, ch, who, at, text, extra = {}) => ({ id, ch, who, at, text, reactions: {}, thread: [], files: [], ...extra });
+  return {
+    channels: [
+      { id: "general", name: "général", topic: "Toute l'agence · pièce : salle commune", room: "commune" },
+      { id: "clients", name: "clients", topic: "Pipeline, relances et signaux · pièce : hall clients", room: "hall" },
+      { id: "p1", name: "campagne-printemps", topic: "Maison Solène · Campagne créative · salle projet", room: "p1", project: "p1" },
+      { id: "p2", name: "clip-nuit-claire", topic: "Studio Nord · Production audiovisuelle · salle projet", room: "p2", project: "p2" },
+      { id: "p3", name: "strategie-cafe-lumen", topic: "Café Lumen · Conseil / stratégie · salle projet", room: "p3", project: "p3" },
+    ],
+    dms: [
+      { id: "dm-johan", with: "johan", room: "chambre-johan" },
+      { id: "dm-charles", with: "charles", room: "chambre-charles" },
+      { id: "dm-pierre", with: "pierre", room: "chambre-pierre" },
+    ],
+    messages: [
+      m("g1", "general", "pierre", "08:52", "Bonjour ! Montage du clip ce matin, je passe en focus jusqu'à 11 h 30.", { reactions: { "👍": ["charles", "johan"] } }),
+      m("g2", "general", "bot", "09:00", "Brief du jour : 3 points urgents. Point hebdo à 9 h 30 à la table visio."),
+      m("g3", "general", "charles", "09:41", "Quelqu'un a le contact de la régie pour l'affichage Maison Solène ?", { thread: [m("g3r1", "general", "pierre", "09:44", "Je te l'envoie en message direct.")] }),
+      m("c1", "clients", "charles", "10:05", "Atelier Brume n'a toujours pas répondu sur la V2. Je relance demain matin.", { reactions: { "👀": ["pierre"] } }),
+      m("c2", "clients", "bot", "10:06", "Relance en retard : Atelier Brume, « Relancer sur la proposition V2 » (prévue le 18 oct.)."),
+      m("p1a", "p1", "johan", "09:15", "Moodboards V2 en cours, je partage vendredi.", { pinned: true, reactions: { "👍": ["charles"] } }),
+      m("p1b", "p1", "charles", "10:12", "@johan les visuels produits de Claire arrivent jeudi : tu pourras débloquer le key visual. Je te mets le planning du shooting.", { files: [{ name: "planning-shooting.pdf", size: "240 Ko" }] }),
+      m("p2a", "p2", "pierre", "08:40", "Dérushage terminé, je monte la V1 aujourd'hui.", { reactions: { "🎉": ["charles"] } }),
+      m("p3a", "p3", "charles", "hier 18:20", "Deck en relecture : vos retours avant jeudi, svp.", { pinned: true }),
+      m("d1", "dm-charles", "charles", "09:30", "Je t'ai laissé un post-it pour le deck Café Lumen. Merci !"),
+      m("d2", "dm-pierre", "pierre", "09:50", "Tu peux jeter un œil à l'étalonnage quand tu as 10 min ? Pas urgent."),
+      m("d3", "dm-johan", "johan", "hier 19:05", "Penser à facturer l'acompte Café Lumen."),
+    ],
+    unread: ["g3", "g3r1", "c1", "c2", "p1b", "d2"],
+    activity: [
+      { kind: "mention", id: "p1b", ch: "p1", who: "charles", text: "@johan les visuels produits de Claire arrivent jeudi : tu pourras débloquer le key visual.", at: "10:12" },
+      { kind: "reaction", id: "p1a", ch: "p1", who: "charles", emoji: "👍", text: "Moodboards V2 en cours, je partage vendredi.", at: "10:13" },
+    ],
+    activityUnread: 2,
+    saved: [], scheduled: [], pendingFiles: [], drafts: {},
+    huddle: null, typing: null, replyN: 0,
+    open: "general", view: "channel", thread: null, menu: null, editing: null, taskFrom: null, confirmDel: null, showPins: false, schedOpen: null, search: "",
+  };
+}
+
+const SLK = document.getElementById("slack");
+const BOT = "bot";
+const QUICK = ["👍", "✅", "👀", "🎉", "🙏"];
+const COMMANDS = [
+  ["/tache", "Titre @qui", "crée une tâche dans le projet du salon"],
+  ["/relance", "client", "note une relance et fixe la prochaine action"],
+  ["/focus", "minutes", "passe en focus : notifications en pause"],
+  ["/dispo", "", "repasse disponible"],
+  ["/huddle", "", "lance un huddle audio dans ce salon"],
+  ["/rappel", "texte", "te rappelle quelque chose plus tard"],
+  ["/standup", "texte", "publie ton stand-up dans #général"],
+];
+const REPLIES = {
+  charles: ["Merci, je regarde après ma réunion.", "Parfait, on fait comme ça.", "Bien noté, je m'en occupe jeudi."],
+  pierre: ["Vu, je reviens vers toi après mon focus.", "Top, merci !"],
+};
+const foldTxt = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const whoName = (w) => (w === BOT ? "QG" : PEOPLE[w].name);
+const whoColor = (w) => (w === BOT ? "var(--coin)" : PEOPLE[w].shirt);
+const avTxt = (w) => (w === BOT ? "QG" : PEOPLE[w].name[0]);
+const PRES_COLOR = { dispo: "#2b9a4c", focus: "#d9402f", reunion: "#7a5ad8", calme: "#9aa6b2" };
+
+function chById(id) { return S.chat.channels.find((c) => c.id === id) || S.chat.dms.find((d) => d.id === id) || null; }
+function chLabel(id) { const c = chById(id); if (!c) return ""; if (c.with) return c.with === ME ? "Moi (notes perso)" : PEOPLE[c.with].name; return "#" + c.name; }
+function roomChannel(roomId) { const c = S.chat.channels.find((x) => x.room === roomId) || S.chat.dms.find((x) => x.room === roomId); return c ? c.id : "general"; }
+function nowHM(offsetMin = 0) { const d = new Date(Date.now() + offsetMin * 60000); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+function newId(p) { return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function findMsg(id) {
+  for (const m of S.chat.messages) {
+    if (m.id === id) return { m, parent: null };
+    const r = (m.thread || []).find((x) => x.id === id);
+    if (r) return { m: r, parent: m };
+  }
+  return null;
+}
+const mentionsMe = (t) => /@(johan|ici|canal)\b/i.test(t || "");
+const mentioned = (t) => Object.keys(PEOPLE).filter((w) => new RegExp("@" + w + "\\b", "i").test(t || ""));
+const isUnread = (id) => S.chat.unread.includes(id);
+function unreadIn(ch) {
+  let n = 0, men = 0;
+  const dm = chById(ch) && chById(ch).with;
+  for (const m of S.chat.messages) {
+    if (m.ch !== ch) continue;
+    for (const x of [m, ...(m.thread || [])]) if (isUnread(x.id)) { n++; if (dm || mentionsMe(x.text)) men++; }
+  }
+  return { n, men };
+}
+function markRead(ch) {
+  const ids = new Set();
+  for (const m of S.chat.messages) if (m.ch === ch) [m, ...(m.thread || [])].forEach((x) => ids.add(x.id));
+  S.chat.unread = S.chat.unread.filter((id) => !ids.has(id));
+}
+const slackOpen = () => !SLK.hidden;
+
+/* --- Publier --- */
+function post(ch, who, text, opts = {}) {
+  const c = S.chat;
+  const msg = { id: newId("m"), ch, who, at: nowHM(), text, reactions: {}, thread: [], files: opts.files || [], about: opts.about || null, ephemeral: !!opts.ephemeral };
+  let viewing = slackOpen() && c.open === ch && !c.search;
+  if (opts.parent) {
+    const f = findMsg(opts.parent);
+    if (!f) return null;
+    const parent = f.parent || f.m;
+    parent.thread.push(msg);
+    viewing = viewing && c.thread === parent.id;
+    if (opts.alsoChannel) c.messages.push({ ...msg, id: newId("m"), thread: [], fromThread: parent.id });
+  } else {
+    c.messages.push(msg);
+    viewing = viewing && !c.thread && c.view === "channel";
+  }
+  if (who !== ME && !msg.ephemeral && !viewing) c.unread.push(msg.id);
+  if (who !== ME && who !== BOT && !msg.ephemeral) {
+    if (mentionsMe(text)) { c.activity.unshift({ kind: "mention", id: msg.id, ch, who, text, at: msg.at }); c.activityUnread = (c.activityUnread || 0) + 1; }
+    if (!viewing && (mentionsMe(text) || (chById(ch) && chById(ch).with))) notify(who, ch, text);
+  }
+  // Pont avec Habbo : un message du salon de la pièce s'affiche en bulle au-dessus de son auteur.
+  if (!msg.ephemeral && who !== BOT && !opts.parent && roomChannel(currentRoomId) === ch) say(who, text);
+  save(); renderChatBadges(); if (slackOpen()) renderSlack();
+  return msg;
+}
+function ephemeral(ch, text, parent) { return post(ch, BOT, text, { ephemeral: true, parent }); }
+function notify(who, ch, text) {
+  if (S.presence[ME].state === "focus") return; // ne pas déranger : la notification attend la fin du focus
+  toast(`${whoName(who)} · ${chLabel(ch)}`, text.length > 110 ? text.slice(0, 110) + "…" : text);
+}
+
+/* --- Réponses simulées (démo) et respect du focus --- */
+function simulateReply(ch, text, parentId) {
+  const c = chById(ch);
+  if (!c) return;
+  let targets = mentioned(text).filter((w) => w !== ME);
+  if (!targets.length && c.with && c.with !== ME) targets = [c.with];
+  if (!targets.length && parentId) {
+    const f = findMsg(parentId);
+    const a = f && (f.parent || f.m).who;
+    if (a && a !== ME && a !== BOT) targets = [a];
+  }
+  targets.forEach((w, i) => {
+    const pr = S.presence[w];
+    if (pr.state === "focus") {
+      mission("dnd");
+      ephemeral(ch, `${PEOPLE[w].name} est en focus jusqu'à ${pr.until} : il n'est pas notifié maintenant et verra ton message à la fin de sa session. Urgent ? /rappel ou un appel.`, parentId);
+      return;
+    }
+    const delay = pr.state === "reunion" ? 5600 : 2600;
+    if (pr.state === "reunion") ephemeral(ch, `${PEOPLE[w].name} est en réunion jusqu'à ${pr.until} : il te répondra après.`, parentId);
+    setTimeout(() => { S.chat.typing = { ch, who: w }; if (slackOpen()) renderSlack(); }, delay - 1500 + i * 400);
+    setTimeout(() => {
+      S.chat.typing = null;
+      const list = REPLIES[w];
+      post(ch, w, list[S.chat.replyN++ % list.length] + " (réponse simulée)", { parent: parentId });
+    }, delay + i * 400);
+  });
+}
+
+/* --- Actions sur les messages --- */
+function toggleReact(id, e) {
+  const f = findMsg(id); if (!f) return;
+  const m = f.m;
+  m.reactions = m.reactions || {};
+  const ws = m.reactions[e] || (m.reactions[e] = []);
+  const i = ws.indexOf(ME);
+  if (i >= 0) ws.splice(i, 1); else ws.push(ME);
+  if (!ws.length) delete m.reactions[e];
+  S.chat.menu = null; save(); renderSlack();
+}
+function deleteMsg(id) {
+  const f = findMsg(id); if (!f) return;
+  const c = S.chat;
+  c.confirmDel = null;
+  if (f.parent) f.parent.thread = f.parent.thread.filter((r) => r.id !== id);
+  else if (f.m.thread.some((r) => !r.ephemeral)) Object.assign(f.m, { deleted: true, text: "", files: [], reactions: {} });
+  else c.messages = c.messages.filter((m) => m.id !== id);
+  c.saved = c.saved.filter((x) => x !== id);
+  save(); renderSlack();
+}
+function remind(id, text, ch) {
+  const f = id ? findMsg(id) : null;
+  const src = f ? f.m : { who: ME, ch, text };
+  S.chat.menu = null;
+  toast("Rappel programmé", "Dans 20 minutes (8 secondes pour la démo).");
+  setTimeout(() => {
+    S.chat.activity.unshift({ kind: "reminder", id: id || null, ch: src.ch, who: src.who, text: src.text, at: nowHM() });
+    S.chat.activityUnread = (S.chat.activityUnread || 0) + 1;
+    toast("Rappel", `${chLabel(src.ch)} : ${src.text.slice(0, 100)}`);
+    save(); renderChatBadges(); if (slackOpen()) renderSlack();
+  }, 8000);
+  if (slackOpen()) renderSlack();
+}
+function createTaskFrom(title, pid, owner, srcId) {
+  const p = PROJECTS[pid];
+  const lot = p.lots.find((l) => S.tasks.some((t) => t.project === pid && t.lot === l && t.status !== "done")) || p.lots[p.lots.length - 1];
+  const t = { id: newId("t"), title, project: pid, lot, owner: owner || null, status: "todo", due: "à planifier", fromMsg: srcId || null };
+  S.tasks.push(t);
+  if (owner) S.load[owner] += 5;
+  log(`Johan crée « ${title} » (${p.name}) depuis les discussions.`, ME);
+  const text = `Tâche créée : « ${title} » · ${p.name}, lot ${lot} · ${owner ? "@" + owner : "sans responsable (carton en salle commune)"}.`;
+  if (srcId) post(findMsg(srcId).m.ch, BOT, text, { parent: srcId });
+  else post(pid, BOT, text);
+  toast("Tâche créée", `« ${title} » ${owner === ME ? "est dans ta main" : owner ? "est confiée à " + PEOPLE[owner].name : "attend dans les cartons"}. Le message reste lié à la tâche.`);
+  refreshRoom(); renderAll();
+  return t;
+}
+function postStandup(kind, text) {
+  S.standup = S.standup.filter((s) => !(s.who === ME && s.kind === kind)).concat([{ who: ME, kind, text }]);
+  log(`Stand-up de Johan (${kind === "bloque" ? "bloqué" : "aujourd'hui"}) : ${text}`, ME);
+  post("general", ME, `*Stand-up* · ${kind === "bloque" ? "Bloqué" : "Aujourd'hui"} : ${text}`);
+  mission("standup");
+  if (kind === "bloque") {
+    S.help.push({ id: "help" + Date.now(), who: ME, text, status: "open" });
+    toast("Demande d'aide créée", "Ton « bloqué » apparaît dans la salle commune et dans #général.");
+    after(3500, () => {
+      const h = S.help.find((x) => x.who === ME && x.status === "open" && x.text === text);
+      if (h) { h.status = "taken"; h.by = "pierre"; say("pierre", "Je regarde ça après ma session de focus. (réponse simulée)"); log("Pierre prend ta demande d'aide.", "pierre"); }
+    });
+  }
+}
+
+/* --- Commandes --- */
+function runCommand(text, ch, parent) {
+  const [cmd, ...rest] = text.split(/\s+/);
+  const arg = rest.join(" ").trim();
+  const c = chById(ch);
+  if (cmd === "/tache") {
+    if (!arg) return ephemeral(ch, "Usage : /tache Titre de la tâche @qui", parent);
+    if (!c || !c.project) return ephemeral(ch, "/tache crée la tâche dans le projet du salon : utilise-la dans un salon de projet, ou « Transformer en tâche » sur un message.", parent);
+    const owner = mentioned(arg)[0] || ME;
+    createTaskFrom(arg.replace(/@\w+/g, "").replace(/\s+/g, " ").trim(), c.project, owner, null);
+    return mission("msgtask");
+  }
+  if (cmd === "/focus") {
+    const n = Math.max(5, Math.min(240, parseInt(arg, 10) || 60));
+    Object.assign(S.presence[ME], { state: "focus", until: nowHM(n) });
+    ephemeral(ch, `Tu es en focus jusqu'à ${nowHM(n)} : tes notifications sont en pause. /dispo pour revenir.`, parent);
+    return refreshRoom(), renderAll();
+  }
+  if (cmd === "/dispo") { Object.assign(S.presence[ME], { state: "dispo", until: null }); ephemeral(ch, "Te revoilà disponible.", parent); return refreshRoom(), renderAll(); }
+  if (cmd === "/huddle") return startHuddle(ch);
+  if (cmd === "/relance") {
+    const o = S.opps.find((x) => arg && foldTxt(x.client).includes(foldTxt(arg)));
+    if (!o) return ephemeral(ch, `Aucun client trouvé pour « ${arg} ». Exemple : /relance Brume`, parent);
+    return ACT.relance(o.id);
+  }
+  if (cmd === "/rappel") { if (!arg) return ephemeral(ch, "Usage : /rappel texte", parent); return remind(null, arg, ch); }
+  if (cmd === "/standup") { if (!arg) return ephemeral(ch, "Usage : /standup ce que tu fais aujourd'hui", parent); return postStandup("aujourdhui", arg); }
+  ephemeral(ch, `Commande inconnue. Disponibles : ${COMMANDS.map((x) => x[0]).join(", ")}.`, parent);
+}
+
+/* --- Huddles (audio) --- */
+function startHuddle(ch) {
+  if (S.chat.huddle) return toast("Huddle déjà en cours", `Dans ${chLabel(S.chat.huddle.ch)}.`);
+  const c = chById(ch);
+  S.chat.huddle = { ch, people: [ME], start: Date.now() };
+  mission("huddle");
+  post(ch, BOT, "Johan a lancé un huddle : rejoignez-le depuis le salon ou la pièce.");
+  Object.keys(PEOPLE).filter((w) => w !== ME && (!c.with || c.with === w) && (!c.members || c.members.includes(w))).forEach((w, i) => {
+    const pr = S.presence[w];
+    if (pr.state === "focus") return ephemeral(ch, `${PEOPLE[w].name} est en focus jusqu'à ${pr.until} : il n'est pas sonné.`);
+    setTimeout(() => {
+      if (!S.chat.huddle || S.chat.huddle.ch !== ch) return;
+      S.chat.huddle.people.push(w);
+      post(ch, BOT, `${PEOPLE[w].name} a rejoint le huddle${pr.state === "reunion" ? " après sa réunion" : ""} (simulé).`);
+      refreshRoom();
+    }, 4500 + i * 1500);
+  });
+  if (c.room && !c.with && c.room !== currentRoomId) enterRoom(c.room);
+  refreshRoom(); save(); if (slackOpen()) renderSlack();
+}
+function endHuddle() {
+  const h = S.chat.huddle; if (!h) return;
+  const min = Math.max(1, Math.round((Date.now() - h.start) / 60000));
+  S.chat.huddle = null;
+  post(h.ch, BOT, `Huddle terminé · ${min} min · ${h.people.map(whoName).join(", ")}.`);
+  refreshRoom();
+}
+
+/* --- Rendu --- */
+function fmt(t) {
+  let h = esc(t);
+  h = h.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  h = h.replace(/\*([^*\n]+)\*/g, "<b>$1</b>").replace(/(^|\s)_([^_\n]+)_/g, "$1<i>$2</i>").replace(/`([^`\n]+)`/g, "<code>$1</code>");
+  h = h.replace(/@(johan|charles|pierre|ici|canal)\b/gi, (s, n) => `<span class="mention${/^(johan|ici|canal)$/i.test(n) ? " me" : ""}">@${n.toLowerCase()}</span>`);
+  return h;
+}
+function threadLink(m, inThread) {
+  const rs = (m.thread || []).filter((r) => !r.ephemeral);
+  if (inThread || !rs.length) return "";
+  const last = rs[rs.length - 1];
+  const who = [...new Set(rs.map((r) => r.who))].slice(0, 3).map((w) => `<span class="mini sm" style="background:${whoColor(w)}">${avTxt(w)}</span>`).join("");
+  return `<button type="button" class="thr${rs.some((r) => isUnread(r.id)) ? " new" : ""}" data-sl="thread" data-id="${m.id}">${who}<b>${rs.length} réponse${rs.length > 1 ? "s" : ""}</b><span class="muted">dernière à ${esc(last.at)}</span></button>`;
+}
+function menuHTML(m, inThread, mine) {
+  const c = S.chat;
+  return `<div class="menu" role="group" aria-label="Actions sur le message">
+    <div class="quick">${QUICK.map((e) => `<button type="button" data-sl="react" data-id="${m.id}" data-e="${e}" aria-label="Réagir avec ${e}">${e}</button>`).join("")}</div>
+    <div class="actions">${inThread ? "" : `<button type="button" class="btn" data-sl="thread" data-id="${m.id}">Répondre dans un fil</button>`}
+    <button type="button" class="btn main" data-sl="taskFrom" data-id="${m.id}">Transformer en tâche</button>
+    <button type="button" class="btn" data-sl="remind" data-id="${m.id}">Me rappeler</button>
+    <button type="button" class="btn" data-sl="save" data-id="${m.id}">${c.saved.includes(m.id) ? "Retirer de Plus tard" : "Plus tard"}</button>
+    ${inThread ? "" : `<button type="button" class="btn" data-sl="pin" data-id="${m.id}">${m.pinned ? "Désépingler" : "Épingler"}</button>`}
+    ${mine ? `<button type="button" class="btn" data-sl="edit" data-id="${m.id}">Modifier</button><button type="button" class="btn warn" data-sl="askDel" data-id="${m.id}">Supprimer</button>` : ""}</div></div>`;
+}
+function taskFormHTML(m) {
+  const chan = chById(m.ch);
+  const proj = (chan && chan.project) || "p1";
+  const owner = mentioned(m.text)[0] || ME;
+  const title = m.text.replace(/@\w+/g, "").replace(/\s+/g, " ").trim().slice(0, 90);
+  return `<div class="taskform"><label class="field">Titre<input class="inp" id="tfTitle" maxlength="120" value="${esc(title)}"></label>
+    <div class="grid2"><label class="field">Projet<select class="inp" id="tfProj">${Object.entries(PROJECTS).map(([id, p]) => `<option value="${id}"${id === proj ? " selected" : ""}>${esc(p.name)}</option>`).join("")}</select></label>
+    <label class="field">Responsable<select class="inp" id="tfOwner">${Object.keys(PEOPLE).map((w) => `<option value="${w}"${w === owner ? " selected" : ""}>${PEOPLE[w].name} · ${S.load[w]} %</option>`).join("")}<option value="">Sans responsable (carton)</option></select></label></div>
+    <div class="actions"><button type="button" class="btn main" data-sl="createTask" data-id="${m.id}">Créer la tâche</button><button type="button" class="btn" data-sl="cancelTask">Annuler</button></div>
+    <p class="small muted">Le message reste lié à la tâche : on retrouve d'où vient la demande.</p></div>`;
+}
+function msgHTML(m, inThread) {
+  const c = S.chat;
+  if (m.deleted) return `<div class="msg deleted"><div class="av" style="background:#9aa6b2"></div><div class="mb"><div class="txt muted">Message supprimé.</div>${threadLink(m, inThread)}</div></div>`;
+  const mine = m.who === ME;
+  const open = c.menu === m.id;
+  const reacts = Object.entries(m.reactions || {}).map(([e, ws]) => `<button type="button" class="react${ws.includes(ME) ? " on" : ""}" data-sl="react" data-id="${m.id}" data-e="${e}" title="${esc(ws.map(whoName).join(", "))}" aria-label="${e} ${ws.length} : ${esc(ws.map(whoName).join(", "))}">${e} ${ws.length}</button>`).join("");
+  const files = (m.files || []).map((f) => `<span class="file"><b>${esc(f.name)}</b> <span class="muted">${esc(f.size)}</span></span>`).join("");
+  const body = c.editing === m.id
+    ? `<div class="edit"><label class="sr" for="slEdit">Modifier le message</label><textarea class="note" id="slEdit" maxlength="2000">${esc(m.text)}</textarea><div class="actions"><button type="button" class="btn main" data-sl="saveEdit" data-id="${m.id}">Enregistrer</button><button type="button" class="btn" data-sl="cancelEdit">Annuler</button></div></div>`
+    : `<div class="txt">${m.about ? `<span class="about">à propos de ${esc(m.about)}</span> ` : ""}${fmt(m.text)}${m.edited ? ' <span class="muted small">(modifié)</span>' : ""}</div>`;
+  const flags = (m.pinned ? '<span class="flag">Épinglé</span>' : "") + (c.saved.includes(m.id) ? '<span class="flag">Plus tard</span>' : "") + (m.fromThread ? `<button type="button" class="flag link" data-sl="thread" data-id="${m.fromThread}">réponse dans un fil</button>` : "");
+  const eph = m.ephemeral ? `<div class="small muted">Visible par toi seulement · <button type="button" class="linkbtn" data-sl="dismiss" data-id="${m.id}">Ignorer</button></div>` : "";
+  return `<div class="msg${open ? " open" : ""}${m.ephemeral ? " eph" : ""}${isUnread(m.id) ? " new" : ""}" id="msg-${m.id}">
+    <div class="av${m.who === BOT ? " bot" : ""}" style="background:${whoColor(m.who)}">${esc(avTxt(m.who))}</div>
+    <div class="mb"><div class="meta"><b>${esc(whoName(m.who))}</b><span class="muted">${esc(m.at)}</span>${flags}</div>${body}${files ? `<div class="files">${files}</div>` : ""}${reacts ? `<div class="reacts">${reacts}</div>` : ""}${threadLink(m, inThread)}${eph}${open ? menuHTML(m, inThread, mine) : ""}${c.taskFrom === m.id ? taskFormHTML(m) : ""}${c.confirmDel === m.id ? `<div class="confirm">Supprimer ce message ? <button type="button" class="btn warn" data-sl="del" data-id="${m.id}">Supprimer</button> <button type="button" class="btn" data-sl="cancelDel">Annuler</button></div>` : ""}</div>
+    ${m.ephemeral ? "" : `<button type="button" class="more" data-sl="menu" data-id="${m.id}" aria-label="Actions sur le message de ${esc(whoName(m.who))}" aria-expanded="${open}">…</button>`}
+  </div>`;
+}
+function typingHTML(ch) { const t = S.chat.typing; return `<div class="typing small muted" aria-live="polite">${t && t.ch === ch ? esc(PEOPLE[t.who].name) + " écrit…" : ""}</div>`; }
+function schedChoicesHTML(key) {
+  const txt = S.chat.drafts[key] || "";
+  const ch = chById(S.chat.open);
+  const busy = [...mentioned(txt), ch && ch.with].filter((w) => w && w !== ME && S.presence[w].state === "focus");
+  const opts = (busy.length ? [`À la fin du focus de ${PEOPLE[busy[0]].name} (${S.presence[busy[0]].until})`] : []).concat(["Demain à 9:00", "Lundi à 9:00"]);
+  return `<div class="sched"><span class="small">Envoyer :</span>${opts.map((o) => `<button type="button" class="btn" data-sl="schedGo" data-when="${esc(o)}">${esc(o)}</button>`).join("")}<button type="button" class="btn" data-sl="schedCancel">Annuler</button></div>`;
+}
+function composerHTML(key, placeholder, parent) {
+  const c = S.chat;
+  return `<form class="sl-compose" ${parent ? `data-parent="${parent}"` : ""}>
+    <div class="sl-suggest" id="slSuggest" hidden></div>
+    <label class="sr" for="slText">${esc(placeholder)}</label>
+    <textarea class="note" id="slText" data-key="${key}" rows="2" maxlength="2000" placeholder="${esc(placeholder)} · / pour les commandes, @ pour mentionner"></textarea>
+    <div class="sl-files" id="slFiles"></div>
+    ${parent ? `<label class="small also"><input type="checkbox" id="slAlso"> Envoyer aussi dans ${esc(chLabel(c.open))}</label>` : ""}
+    ${c.schedOpen === key ? schedChoicesHTML(key) : ""}
+    <div class="sl-tools"><label class="btn" for="slFile">Joindre</label><input type="file" id="slFile" multiple class="sr">
+      <span class="small muted hint">*gras* _italique_ \`code\` · Entrée pour envoyer, Maj+Entrée pour aller à la ligne</span>
+      <button type="button" class="btn" data-sl="sched">Programmer</button><button type="submit" class="btn main">Envoyer</button></div></form>`;
+}
+const head = (title, sub) => `<header class="sl-head"><button type="button" class="btn sl-back" data-sl="back">Retour</button><div class="grow"><b>${esc(title)}</b>${sub ? `<div class="s">${esc(sub)}</div>` : ""}</div></header>`;
+
+function renderSlackSide() {
+  const c = S.chat;
+  const on = (v) => !c.search && c.view === v;
+  const badge = (n, soft) => (n ? `<span class="badge${soft ? " soft" : ""}">${n}</span>` : "");
+  const item = (attrs, label, isOn, b, cls = "") => `<button type="button" class="sl-item${isOn ? " on" : ""} ${cls}" ${attrs}>${label}${b}</button>`;
+  let h = item('data-sl="view" data-v="activity"', "Activité", on("activity"), badge(c.activityUnread || 0))
+    + item('data-sl="view" data-v="saved"', "Plus tard", on("saved"), badge(c.saved.length, true))
+    + item('data-sl="view" data-v="scheduled"', "Programmés", on("scheduled"), badge(c.scheduled.length, true))
+    + '<p class="sl-sect">Salons</p>';
+  h += c.channels.map((ch) => {
+    const u = unreadIn(ch.id);
+    const live = c.huddle && c.huddle.ch === ch.id ? '<span class="live">huddle</span>' : "";
+    return item(`data-sl="open" data-ch="${ch.id}"`, `<span class="hash">#</span><span class="nm">${esc(ch.name)}${ch.private ? " · privé" : ""}</span>${live}`, on("channel") && c.open === ch.id, u.men ? badge(u.men) : badge(u.n, true), u.n ? "unread" : "");
+  }).join("");
+  h += item('data-sl="view" data-v="newchannel"', "+ Créer un salon", on("newchannel"), "", "add");
+  h += '<p class="sl-sect">Messages directs</p>';
+  h += c.dms.map((d) => {
+    const u = unreadIn(d.id);
+    const p = S.presence[d.with];
+    const st = p.share ? p.state : "calme";
+    const label = d.with === ME ? "Moi (notes perso)" : PEOPLE[d.with].name;
+    return item(`data-sl="open" data-ch="${d.id}"`, `<span class="pres" style="background:${PRES_COLOR[st]}" title="${esc(shownShort(d.with))}"></span><span class="nm">${esc(label)}</span>${d.with !== ME ? `<span class="st">${esc(shownShort(d.with))}</span>` : ""}`, on("channel") && c.open === d.id, badge(u.n), u.n ? "unread" : "");
+  }).join("");
+  document.getElementById("slackSide").innerHTML = h;
+}
+function renderChannel(main) {
+  const c = S.chat;
+  const ch = chById(c.open);
+  const msgs = c.messages.filter((m) => m.ch === ch.id && (!m.deleted || (m.thread || []).some((r) => !r.ephemeral)));
+  const pins = msgs.filter((m) => m.pinned);
+  const h = c.huddle;
+  const title = ch.with ? (ch.with === ME ? "Moi · notes perso" : PEOPLE[ch.with].name) : "#" + ch.name;
+  const pr = ch.with && S.presence[ch.with];
+  const topic = ch.with ? (ch.with === ME ? "Ton espace : brouillons, liens, pense-bêtes. Personne d'autre ne le voit." : `${shownShort(ch.with)}${pr.share && pr.until ? " jusqu'à " + pr.until : ""}${pr.custom ? " · " + pr.custom : ""}`) : ch.topic;
+  main.innerHTML = `<header class="sl-head"><button type="button" class="btn sl-back" data-sl="back">Retour</button><div class="grow"><b>${esc(title)}</b><div class="s">${esc(topic)}</div></div>
+    <div class="actions">${pins.length ? `<button type="button" class="btn" data-sl="pins" aria-expanded="${!!c.showPins}">Épinglés (${pins.length})</button>` : ""}${ch.room && !ch.with ? `<button type="button" class="btn" data-sl="goroom" data-room="${ch.room}">Aller dans la pièce</button>` : ""}${ch.with === ME || (h && h.ch === ch.id) ? "" : `<button type="button" class="btn" data-sl="huddle">Huddle</button>`}</div></header>
+    ${h && h.ch === ch.id ? `<div class="huddle"><b>Huddle en cours</b><span>${h.people.map(whoName).join(", ")}</span><span class="actions"><button type="button" class="btn" data-sl="meet">Ouvrir la visio</button><button type="button" class="btn warn" data-sl="leave">Quitter</button></span></div>` : ""}
+    ${c.showPins && pins.length ? `<div class="pins">${pins.map((m) => `<button type="button" class="pin" data-sl="jump" data-id="${m.id}"><b>${esc(whoName(m.who))}</b> ${esc(m.text.slice(0, 120))}</button>`).join("")}</div>` : ""}
+    <div class="sl-list" role="log" aria-label="Messages de ${esc(title)}">${msgs.length ? msgs.map((m) => msgHTML(m, false)).join("") : '<p class="muted small">Aucun message. Écris le premier.</p>'}</div>
+    ${typingHTML(ch.id)}
+    ${composerHTML("c:" + ch.id, ch.with ? (ch.with === ME ? "Note pour toi" : "Message à " + PEOPLE[ch.with].name) : "Message dans #" + ch.name, null)}`;
+}
+function renderThread(main) {
+  const c = S.chat;
+  const f = findMsg(c.thread);
+  if (!f) { c.thread = null; return renderChannel(main); }
+  const m = f.m;
+  const ids = new Set([m.id, ...m.thread.map((r) => r.id)]);
+  c.unread = c.unread.filter((id) => !ids.has(id));
+  const n = m.thread.filter((r) => !r.ephemeral).length;
+  main.innerHTML = `<header class="sl-head"><button type="button" class="btn" data-sl="back">Retour à ${esc(chLabel(m.ch))}</button><div class="grow"><b>Fil de discussion</b><div class="s">${esc(chLabel(m.ch))}</div></div></header>
+    <div class="sl-list" role="log" aria-label="Fil de discussion">${msgHTML(m, true)}<p class="sep small muted">${n} réponse${n > 1 ? "s" : ""}</p>${m.thread.map((r) => msgHTML(r, true)).join("")}</div>
+    ${typingHTML(m.ch)}${composerHTML("t:" + m.id, "Répondre dans le fil", m.id)}`;
+}
+function openRowHTML(x, parent, label, extra = "") {
+  return `<div class="act-row"><span class="mini" style="background:${whoColor(x.who)}">${esc(avTxt(x.who))}</span><span class="grow"><b>${label}</b> <span class="muted small">${esc(chLabel(x.ch))} · ${esc(x.at)}</span><span class="s">${esc((x.text || "").slice(0, 160))}</span></span><span class="actions"><button type="button" class="btn" data-sl="goto" data-ch="${x.ch}"${parent ? ` data-thread="${parent}"` : ""}>Ouvrir</button>${extra}</span></div>`;
+}
+function renderActivity(main) {
+  const c = S.chat;
+  main.innerHTML = head("Activité", "Mentions, réactions à tes messages et rappels") + `<div class="sl-list">${c.activity.length ? c.activity.map((a) => {
+    const f = a.id && findMsg(a.id);
+    const label = a.kind === "mention" ? `${esc(whoName(a.who))} t'a mentionné` : a.kind === "reaction" ? `${esc(whoName(a.who))} a réagi ${a.emoji} à ton message` : "Rappel";
+    return openRowHTML({ ...a }, f && f.parent ? f.parent.id : null, label);
+  }).join("") : '<p class="muted small">Rien de nouveau.</p>'}</div>`;
+}
+function renderSaved(main) {
+  const c = S.chat;
+  const rows = c.saved.map((id) => findMsg(id)).filter(Boolean);
+  main.innerHTML = head("Plus tard", "Les messages que tu as mis de côté") + `<div class="sl-list">${rows.length ? rows.map((f) => openRowHTML(f.m, f.parent && f.parent.id, esc(whoName(f.m.who)), `<button type="button" class="btn" data-sl="save" data-id="${f.m.id}">Retirer</button>`)).join("") : '<p class="muted small">Rien de côté. Menu « … » d\'un message, puis « Plus tard ».</p>'}</div>`;
+}
+function renderScheduled(main) {
+  const c = S.chat;
+  main.innerHTML = head("Messages programmés", "Ils partiront à l'heure choisie") + `<div class="sl-list">${c.scheduled.length ? c.scheduled.map((s) => `<div class="act-row"><span class="grow"><b>${esc(chLabel(s.ch))}</b> <span class="muted small">${esc(s.when)}</span><span class="s">${esc(s.text)}</span></span><span class="actions"><button type="button" class="btn main" data-sl="sendNow" data-id="${s.id}">Envoyer maintenant</button><button type="button" class="btn" data-sl="unsched" data-id="${s.id}">Annuler</button></span></div>`).join("") : '<p class="muted small">Aucun message programmé. Écris un message, puis « Programmer ».</p>'}</div>`;
+}
+function renderSearch(main) {
+  const q = foldTxt(S.chat.search.trim());
+  const hits = [];
+  if (q.length >= 2) for (const m of S.chat.messages) for (const x of [m, ...(m.thread || [])]) {
+    if (x.ephemeral || x.deleted) continue;
+    if (foldTxt(x.text).includes(q) || (x.files || []).some((f) => foldTxt(f.name).includes(q))) hits.push({ x, parent: x === m ? null : m.id });
+  }
+  main.innerHTML = head(`Recherche « ${S.chat.search.trim()} »`, q.length < 2 ? "Saisis au moins 2 caractères" : `${hits.length} résultat${hits.length > 1 ? "s" : ""} · salons, messages directs, fils et fichiers`)
+    + `<div class="sl-list">${hits.map((h) => openRowHTML(h.x, h.parent, esc(whoName(h.x.who)) + ((h.x.files || []).length ? ` · ${h.x.files.map((f) => esc(f.name)).join(", ")}` : ""))).join("") || (q.length >= 2 ? '<p class="muted small">Aucun message ne correspond.</p>' : "")}</div>`;
+}
+function renderNewChannel(main) {
+  main.innerHTML = head("Créer un salon", "Un salon par sujet : un client, un événement, une veille…") + `<div class="sl-list"><div class="form">
+    <label class="field">Nom<input class="inp" id="ncName" maxlength="60" placeholder="ex. veille-tendances"></label>
+    <label class="field">Sujet<input class="inp" id="ncTopic" maxlength="120" placeholder="ex. Liens et idées à partager"></label>
+    <label class="small" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ncPriv"> Salon privé (seuls les membres le voient)</label>
+    <fieldset class="members"><legend class="small">Membres</legend>${Object.keys(PEOPLE).map((w) => `<label class="small"><input type="checkbox" class="ncMember" value="${w}" checked${w === ME ? " disabled" : ""}> ${PEOPLE[w].name}</label>`).join("")}</fieldset>
+    <div class="actions"><button type="button" class="btn main" data-sl="createChannel">Créer le salon</button></div>
+    <p class="small muted">Dans l'app, chaque nouveau projet crée aussi son salon, archivé à la clôture du projet.</p></div></div>`;
+}
+function renderFiles() {
+  const box = document.getElementById("slFiles");
+  if (box) box.innerHTML = S.chat.pendingFiles.map((f, i) => `<span class="file"><b>${esc(f.name)}</b> <span class="muted">${esc(f.size)}</span><button type="button" class="linkbtn" data-sl="unfile" data-i="${i}" aria-label="Retirer ${esc(f.name)}">x</button></span>`).join("");
+}
+function slKey() { const c = S.chat; return c.search ? "search" : c.thread ? "t:" + c.thread : c.view === "channel" ? "c:" + c.open : c.view; }
+function renderSlack() {
+  if (!slackOpen()) return;
+  const c = S.chat;
+  const ta = document.getElementById("slText");
+  if (ta) c.drafts[ta.dataset.key] = ta.value;
+  const hadFocus = ta && document.activeElement === ta;
+  const list = SLK.querySelector(".sl-list");
+  const atBottom = !list || list.scrollHeight - list.scrollTop - list.clientHeight < 60;
+  const prevTop = list ? list.scrollTop : 0;
+  const prevKey = SLK.dataset.key;
+  renderSlackSide();
+  const main = document.getElementById("slackMain");
+  if (c.search) renderSearch(main);
+  else if (c.view === "activity") renderActivity(main);
+  else if (c.view === "saved") renderSaved(main);
+  else if (c.view === "scheduled") renderScheduled(main);
+  else if (c.view === "newchannel") renderNewChannel(main);
+  else if (c.thread) renderThread(main);
+  else renderChannel(main);
+  const key = slKey();
+  SLK.dataset.key = key;
+  const nl = SLK.querySelector(".sl-list");
+  if (nl) nl.scrollTop = key !== prevKey || atBottom ? (c.view === "channel" || c.thread ? nl.scrollHeight : 0) : prevTop;
+  const nta = document.getElementById("slText");
+  if (nta) {
+    nta.value = c.drafts[nta.dataset.key] || "";
+    if (hadFocus) { nta.focus(); nta.setSelectionRange(nta.value.length, nta.value.length); }
+  }
+  renderFiles();
+}
+function renderChatBadges() {
+  if (!S.chat) return;
+  let n = 0, men = 0;
+  for (const ch of [...S.chat.channels, ...S.chat.dms]) { const u = unreadIn(ch.id); n += u.n; men += u.men; }
+  const el = document.getElementById("slackCount");
+  el.textContent = men || n; el.hidden = !n; el.classList.toggle("soft", !men);
+  if (slackOpen()) renderSlackSide();
+}
+
+/* --- Navigation dans le panneau --- */
+function openChannel(id) {
+  const c = S.chat;
+  if (!chById(id)) id = "general";
+  Object.assign(c, { view: "channel", open: id, thread: null, menu: null, taskFrom: null, editing: null, confirmDel: null, showPins: false, schedOpen: null, search: "" });
+  document.getElementById("slSearch").value = "";
+  markRead(id);
+  SLK.dataset.pane = "main";
+  save(); renderSlack(); renderChatBadges();
+}
+function openSlack(ch) {
+  SLK.hidden = false;
+  if (ch) openChannel(ch);
+  else { SLK.dataset.pane = window.innerWidth < 720 ? "side" : "main"; if (S.chat.view === "channel" && !S.chat.thread) markRead(S.chat.open); renderSlack(); renderChatBadges(); }
+  if (window.innerWidth >= 720) { const t = document.getElementById("slText"); if (t) t.focus(); }
+}
+function closeSlack() { SLK.hidden = true; const b = document.getElementById("openSlack"); if (b) b.focus(); }
+function doSchedule(when) {
+  const c = S.chat;
+  const key = c.schedOpen;
+  const ta = document.getElementById("slText");
+  const text = (ta ? ta.value : c.drafts[key] || "").trim();
+  if (!text) return toast("Message vide", "Écris d'abord ton message, puis programme-le.");
+  const parent = key && key.startsWith("t:") ? key.slice(2) : null;
+  c.scheduled.push({ id: newId("s"), ch: c.open, text, files: c.pendingFiles.slice(), when, parent });
+  c.pendingFiles = []; c.drafts[key] = ""; if (ta) ta.value = ""; c.schedOpen = null;
+  toast("Message programmé", `${chLabel(c.open)} · ${when}. Retrouve-le dans « Programmés ».`);
+  save(); renderSlack();
+}
+function sendScheduled(id) {
+  const c = S.chat;
+  const s = c.scheduled.find((x) => x.id === id); if (!s) return;
+  c.scheduled = c.scheduled.filter((x) => x.id !== id);
+  post(s.ch, ME, s.text, { files: s.files, parent: s.parent });
+  simulateReply(s.ch, s.text, s.parent);
+}
+function createChannel() {
+  const c = S.chat;
+  const name = foldTxt(document.getElementById("ncName").value).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+  if (!name) return toast("Nom requis", "Donne un nom au salon (lettres et chiffres).");
+  if (c.channels.some((x) => x.name === name)) return toast("Ce salon existe déjà", `#${name} existe : ouvre-le depuis la liste.`);
+  const members = [...document.querySelectorAll(".ncMember")].filter((x) => x.checked).map((x) => x.value);
+  const id = newId("ch");
+  c.channels.push({ id, name, topic: document.getElementById("ncTopic").value.trim() || "Salon créé par Johan", private: document.getElementById("ncPriv").checked, members });
+  post(id, BOT, `Johan a créé #${name}. Membres : ${members.map(whoName).join(", ")}.`);
+  openChannel(id);
+}
+function sendFromComposer(f) {
+  const c = S.chat;
+  const ta = f.querySelector("#slText");
+  const text = ta.value.trim();
+  const parent = f.dataset.parent || null;
+  const files = c.pendingFiles.slice();
+  if (!text && !files.length) return ta.focus();
+  ta.value = ""; c.drafts[ta.dataset.key] = ""; c.pendingFiles = []; c.schedOpen = null;
+  if (text.startsWith("/")) { save(); return runCommand(text, c.open, parent); }
+  const also = parent && f.querySelector("#slAlso") && f.querySelector("#slAlso").checked;
+  post(c.open, ME, text || "Fichier partagé", { parent, alsoChannel: also, files });
+  if (parent) mission("thread");
+  simulateReply(c.open, text, parent);
+}
+function suggest(ta) {
+  const box = document.getElementById("slSuggest");
+  if (!box) return;
+  const v = ta.value;
+  let items = [];
+  if (/^\/\w*$/.test(v)) items = COMMANDS.filter(([cmd]) => cmd.startsWith(v)).map(([cmd, args, d]) => ({ label: `<b>${cmd}</b> ${esc(args)} <span class="muted">${esc(d)}</span>`, insert: cmd + " ", all: true }));
+  const m = /(^|\s)@(\w*)$/.exec(v);
+  if (m) items = [...Object.keys(PEOPLE).filter((w) => w !== ME), "ici"].filter((w) => w.startsWith(m[2].toLowerCase())).map((w) => ({ label: w === "ici" ? "<b>@ici</b> <span class='muted'>prévient les associés disponibles</span>" : `<b>@${w}</b> <span class="muted">${PEOPLE[w].name} · ${esc(shownShort(w))}</span>`, insert: "@" + w + " " }));
+  box._items = items;
+  box.hidden = !items.length;
+  box.innerHTML = items.map((it, i) => `<button type="button" data-sl="pick" data-i="${i}">${it.label}</button>`).join("");
+}
+
+/* --- Événements du panneau (délégués) --- */
+SLK.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-sl]");
+  if (!b) return;
+  const a = b.dataset.sl, id = b.dataset.id, c = S.chat;
+  const rerender = () => { save(); renderSlack(); };
+  switch (a) {
+    case "open": return openChannel(b.dataset.ch);
+    case "view":
+      Object.assign(c, { view: b.dataset.v, thread: null, search: "", menu: null });
+      document.getElementById("slSearch").value = "";
+      if (c.view === "activity") c.activityUnread = 0;
+      SLK.dataset.pane = "main";
+      rerender(); return renderChatBadges();
+    case "back":
+      if (c.thread) c.thread = null;
+      else if (c.view !== "channel" || c.search) { c.view = "channel"; c.search = ""; document.getElementById("slSearch").value = ""; if (window.innerWidth < 720) SLK.dataset.pane = "side"; }
+      else SLK.dataset.pane = "side";
+      return rerender();
+    case "menu": Object.assign(c, { menu: c.menu === id ? null : id, taskFrom: null, confirmDel: null }); return rerender();
+    case "react": return toggleReact(id, b.dataset.e);
+    case "thread": { const f = findMsg(id); if (!f) return; Object.assign(c, { thread: (f.parent || f.m).id, menu: null, view: "channel" }); SLK.dataset.pane = "main"; rerender(); return renderChatBadges(); }
+    case "taskFrom": Object.assign(c, { taskFrom: id, menu: null }); return rerender();
+    case "cancelTask": c.taskFrom = null; return rerender();
+    case "createTask": {
+      const t = document.getElementById("tfTitle").value.trim();
+      if (!t) return toast("Titre requis", "Donne un titre à la tâche.");
+      const pid = document.getElementById("tfProj").value, ow = document.getElementById("tfOwner").value || null;
+      c.taskFrom = null; createTaskFrom(t, pid, ow, id); return mission("msgtask");
+    }
+    case "remind": return remind(id);
+    case "save": { const i = c.saved.indexOf(id); if (i >= 0) c.saved.splice(i, 1); else { c.saved.push(id); toast("Gardé pour plus tard", "Retrouve-le dans « Plus tard »."); } c.menu = null; return rerender(); }
+    case "pin": { const m = findMsg(id).m; m.pinned = !m.pinned; c.menu = null; if (m.pinned) return post(m.ch, BOT, `Johan a épinglé un message de ${whoName(m.who)}.`); return rerender(); }
+    case "pins": c.showPins = !c.showPins; return rerender();
+    case "jump": { const el = document.getElementById("msg-" + id); if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1200); } return; }
+    case "edit": Object.assign(c, { editing: id, menu: null }); rerender(); { const t = document.getElementById("slEdit"); if (t) t.focus(); } return;
+    case "saveEdit": { const v = document.getElementById("slEdit").value.trim(); if (!v) return; const m = findMsg(id).m; m.text = v; m.edited = true; c.editing = null; return rerender(); }
+    case "cancelEdit": c.editing = null; return rerender();
+    case "askDel": Object.assign(c, { confirmDel: id, menu: null }); return rerender();
+    case "cancelDel": c.confirmDel = null; return rerender();
+    case "del": return deleteMsg(id);
+    case "dismiss": { const f = findMsg(id); if (f) { if (f.parent) f.parent.thread = f.parent.thread.filter((r) => r.id !== id); else c.messages = c.messages.filter((m) => m.id !== id); } return rerender(); }
+    case "huddle": return startHuddle(c.open);
+    case "leave": return endHuddle();
+    case "meet": return toast("Visio", "Dans l'app, le huddle ouvre le lien Meet ou Jitsi du salon (audio, vidéo, partage d'écran).");
+    case "goroom": closeSlack(); return enterRoom(b.dataset.room);
+    case "sched": { const t = document.getElementById("slText"); if (!t || !t.value.trim()) return toast("Message vide", "Écris d'abord ton message, puis programme-le."); c.schedOpen = t.dataset.key; return rerender(); }
+    case "schedGo": return doSchedule(b.dataset.when);
+    case "schedCancel": c.schedOpen = null; return rerender();
+    case "sendNow": return sendScheduled(id);
+    case "unsched": c.scheduled = c.scheduled.filter((s) => s.id !== id); return rerender();
+    case "pick": {
+      const box = document.getElementById("slSuggest"), t = document.getElementById("slText");
+      const it = box && box._items && box._items[+b.dataset.i];
+      if (!it || !t) return;
+      t.value = it.all ? it.insert : t.value.replace(/@\w*$/, it.insert);
+      c.drafts[t.dataset.key] = t.value; box.hidden = true; t.focus(); return;
+    }
+    case "unfile": c.pendingFiles.splice(+b.dataset.i, 1); return renderFiles();
+    case "goto": { const th = b.dataset.thread; openChannel(b.dataset.ch); if (th) { c.thread = th; rerender(); } return; }
+    case "createChannel": return createChannel();
+  }
+});
+SLK.addEventListener("submit", (e) => { const f = e.target.closest(".sl-compose"); if (!f) return; e.preventDefault(); sendFromComposer(f); });
+SLK.addEventListener("keydown", (e) => {
+  if (e.target.id === "slText" && e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); e.target.form.requestSubmit(); }
+});
+SLK.addEventListener("input", (e) => {
+  if (e.target.id === "slText") { S.chat.drafts[e.target.dataset.key] = e.target.value; suggest(e.target); }
+  if (e.target.id === "slSearch") { S.chat.search = e.target.value; S.chat.thread = null; SLK.dataset.pane = "main"; renderSlack(); }
+});
+SLK.addEventListener("change", (e) => {
+  if (e.target.id !== "slFile") return;
+  for (const f of e.target.files) S.chat.pendingFiles.push({ name: f.name, size: f.size >= 1048576 ? (f.size / 1048576).toFixed(1).replace(".", ",") + " Mo" : Math.max(1, Math.round(f.size / 1024)) + " Ko" });
+  e.target.value = "";
+  renderFiles();
+});
+document.getElementById("slackClose").addEventListener("click", closeSlack);
+document.getElementById("openSlack").addEventListener("click", () => (slackOpen() ? closeSlack() : openSlack()));
+
 
 /* --- Outils --- */
 document.querySelectorAll("[data-open]").forEach((b) => b.addEventListener("click", () => openModal(b.dataset.open)));
 document.getElementById("modalClose").addEventListener("click", closeModal);
 document.getElementById("scrim").addEventListener("click", closeModal);
-document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !document.getElementById("modal").hidden) closeModal(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (!document.getElementById("modal").hidden) closeModal();
+  else if (slackOpen()) closeSlack();
+});
 document.getElementById("resetDemo").addEventListener("click", () => {
-  S = freshState(); save(); enterRoom("chambre-johan"); renderAll();
+  S = freshState(); save(); enterRoom("chambre-johan"); renderAll(); if (slackOpen()) renderSlack();
   document.getElementById("chatlog").innerHTML = "";
   toast("Démo remise à zéro", "Tout est revenu à l'état de départ.");
 });
 
 /* --- Démarrage --- */
+if (!S.chat) S.chat = freshChat();
 window.addEventListener("resize", fit);
 enterRoom(currentRoomId);
 fit();

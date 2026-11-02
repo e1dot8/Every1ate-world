@@ -45,6 +45,14 @@ Les mécaniques proposées mais pas encore dans la maquette sont décrites dans 
 (mur des échéances, carton de clôture, plantes rituelles pour les tâches récurrentes, Infobus pour
 les votes, revue pipeline du lundi…).
 
+## Discussions
+
+Le bouton « Discussions » ouvre une messagerie aux fonctionnalités de Slack : salons (un par pièce
+et par projet), messages directs, fils, réactions, mentions, fichiers, recherche, épinglés,
+« Plus tard », rappels, messages programmés, commandes (`/tache`, `/relance`, `/focus`, `/huddle`…)
+et huddles. Un message écrit dans le salon d'une pièce s'affiche aussi en bulle au-dessus de son
+auteur. Détail et correspondance complète : `DISCUSSIONS.md`.
+
 ## Garde-fous
 
 1. **Pas de surveillance** : statut choisi par chacun, partagé seulement s'il le veut, et grossier.
@@ -53,7 +61,10 @@ les votes, revue pipeline du lundi…).
    l'activité, les clics ou le temps chronométré).
 3. **Pas de second état** : le QG affiche les données de l'application et passe par ses règles
    (validation serveur, journal d'audit). Il ne crée aucun état « de jeu » séparé.
-4. **Pas de WhatsApp en pixel art** : chaque bulle est rattachée à un objet de travail.
+4. **Une messagerie qui sert le travail** : la discussion libre existe (décision du 2 nov. 2026, voir
+   `DISCUSSIONS.md`), mais les salons suivent les pièces et les projets, tout message peut devenir
+   une tâche ou une relance, le focus coupe les notifications, et il n'y a ni accusé de lecture ni
+   « en ligne depuis ».
 5. **Signaux négatifs sur les objets** : on montre une tâche bloquée ou un client en retard, jamais une
    personne fautive, et chaque signal propose une sortie en un clic.
 6. **Une limite qui se dépasse** : le bureau à 3 places se dépasse avec un motif, sinon on

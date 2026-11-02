@@ -23,3 +23,7 @@
    - compte rendu à écrire ;
    - poussière et grand ménage.
 6. **Maquette interactive** publiée (privée), puis transférée dans ce dépôt.
+7. **Discussions (2 nov. 2026)** : ajouter dans le QG les fonctionnalités de Slack. La règle
+   « pas de discussion libre » est remplacée par une messagerie complète dont les salons suivent
+   les pièces et les projets, où tout message peut devenir une tâche, et qui respecte le focus
+   (`docs/DISCUSSIONS.md`).
